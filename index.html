@@ -65,7 +65,6 @@
         .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; }
         .hero-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
         
-        /* 복구된 영웅 등급 테두리 CSS */
         .border-old { border-color: var(--purple) !important; }
         .border-leg { border-color: var(--gold) !important; }
         .border-rare { border-color: var(--blue) !important; }
@@ -79,6 +78,10 @@
         
         .close-circle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; z-index: 10; }
         .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 45px; pointer-events: none; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
+
+        /* 체크박스 스타일 */
+        .check-container { display: flex; align-items: center; gap: 10px; margin: 10px 0 20px 5px; color: var(--gold); font-weight: bold; font-size: 15px; cursor: pointer; }
+        .check-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -93,22 +96,35 @@
         
         <label class="info-label">덱 종류</label>
         <select id="edType"><option value="offense">⚔️ 공격 덱</option><option value="defense">🛡️ 방어 덱</option></select>
+
+        <label class="check-container"><input type="checkbox" id="edMain"> 메인 화면(홈)에 표시</label>
         
-        <label class="info-label">영웅 배치</label>
+        <label class="info-label">영웅 배치 (검색 후 선택)</label>
         <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #333;">
-            <input type="text" placeholder="영웅1 검색..." onkeyup="filterHeroSelect(this, 'edP1')"><select id="edP1"></select>
-            <input type="text" placeholder="영웅2 검색..." onkeyup="filterHeroSelect(this, 'edP2')"><select id="edP2"></select>
-            <input type="text" placeholder="영웅3 검색..." onkeyup="filterHeroSelect(this, 'edP3')"><select id="edP3"></select>
+            <div style="margin-bottom:10px;"><input type="text" placeholder="영웅1 검색..." onkeyup="filterHeroSelect(this, 'edP1')" style="margin-bottom:5px;"><select id="edP1"></select></div>
+            <div style="margin-bottom:10px;"><input type="text" placeholder="영웅2 검색..." onkeyup="filterHeroSelect(this, 'edP2')" style="margin-bottom:5px;"><select id="edP2"></select></div>
+            <div><input type="text" placeholder="영웅3 검색..." onkeyup="filterHeroSelect(this, 'edP3')" style="margin-bottom:5px;"><select id="edP3"></select></div>
         </div>
         
-        <label class="info-label">상세 정보 입력</label>
+        <label class="info-label">세부 능력치 및 세팅</label>
         <div style="background:rgba(212,175,55,0.05); padding:15px; border-radius:12px; border:1px solid #444;">
-            <input type="text" id="edSpeed" placeholder="속공 (예: 512)">
-            <input type="text" id="edRing" placeholder="반지 (예: 불사/권능)">
-            <input type="text" id="edPet" placeholder="펫 (예: 라이언 4성)">
-            <input type="text" id="edSkill" placeholder="스킬 순서 (예: 1-3-2)">
-            <input type="text" id="edForm" placeholder="진형 (예: 속공 진형 10렙)">
-            <textarea id="edExtra" style="height: 120px;" placeholder="장비 세팅 및 기타 특이사항"></textarea>
+            <label class="info-label">⚡ 속공</label>
+            <input type="text" id="edSpeed" placeholder="예: 512">
+            
+            <label class="info-label">💍 반지</label>
+            <input type="text" id="edRing" placeholder="예: 불사/권능">
+            
+            <label class="info-label">🐾 펫</label>
+            <input type="text" id="edPet" placeholder="예: 라이언 4성">
+            
+            <label class="info-label">📜 스킬 순서</label>
+            <input type="text" id="edSkill" placeholder="예: 1-3-2">
+            
+            <label class="info-label">🛡️ 진형</label>
+            <input type="text" id="edForm" placeholder="예: 속공 진형 10렙">
+            
+            <label class="info-label">📝 장비 및 특이사항</label>
+            <textarea id="edExtra" style="height: 120px;" placeholder="세부 세팅이나 공략 팁을 입력하세요"></textarea>
         </div>
         
         <button class="btn-gold" id="edSaveBtn" onclick="saveDeckEdit()">✅ 수정 완료 및 저장</button>
@@ -135,7 +151,9 @@
                     <p style="font-size:13px; color:var(--gold);">* 덱 제목만 적고 등록한 뒤, 리스트에서 '수정'을 눌러 상세 항목을 채워주세요!</p>
                 </div>
                 <div id="heroGradeSet" style="display:none;"><select id="gradeIn"><option value="old">🟣 구세나</option><option value="leg">🟡 전설</option><option value="rare">🔵 희귀</option></select></div>
+                
                 <input type="text" id="titIn" placeholder="제목을 입력하세요">
+                <label class="check-container"><input type="checkbox" id="mainIn"> 메인 화면(홈)에 표시</label>
                 
                 <div id="fileArea">
                     <input type="file" id="fileIn" multiple accept="image/*" style="border:none; padding:10px 0;">
@@ -211,9 +229,8 @@
     const checkGate = () => { if(document.getElementById('pw').value === 'glowing99') { sessionStorage.setItem('auth', 'true'); location.reload(); } };
     const askAdmin = () => { if(!isAdmin && prompt("ADMIN CODE:") === '1005') { sessionStorage.setItem('admin', 'true'); location.reload(); } };
     
-    // 복구된 유튜브 ID 추출 함수
     const getYTubeId = (url) => {
-        const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?]+)/);
+        const m = (url||"").match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?]+)/);
         return m ? m[1] : null;
     };
 
@@ -265,88 +282,66 @@
             return p.category === curFilter;
         });
 
-        // 복구된 영웅 등급별 그룹 렌더링
         if(curFilter === 'guild' && curSub === 'hero') {
             heroesEl.style.display = 'block';
-            const gradeMap = {
-                'old': { title: '🟣 구세나', color: 'var(--purple)', heroes: [] },
-                'leg': { title: '🟡 전설', color: 'var(--gold)', heroes: [] },
-                'rare': { title: '🔵 희귀', color: 'var(--blue)', heroes: [] }
-            };
-            
-            filtered.forEach(h => {
-                if(gradeMap[h.grade]) gradeMap[h.grade].heroes.push(h);
-                else gradeMap['leg'].heroes.push(h); // 예외처리
-            });
-
+            const gradeMap = { 'old': { title: '🟣 구세나', color: 'var(--purple)', heroes: [] }, 'leg': { title: '🟡 전설', color: 'var(--gold)', heroes: [] }, 'rare': { title: '🔵 희귀', color: 'var(--blue)', heroes: [] } };
+            filtered.forEach(h => { if(gradeMap[h.grade]) gradeMap[h.grade].heroes.push(h); else gradeMap['leg'].heroes.push(h); });
             ['old', 'leg', 'rare'].forEach(g => {
                 if(gradeMap[g].heroes.length > 0) {
                     const sec = document.createElement('div');
                     sec.innerHTML = `<h3 style="color:${gradeMap[g].color}; margin: 25px 0 10px 5px; border-bottom:1px solid #333; padding-bottom:5px;">${gradeMap[g].title}</h3>`;
                     const grid = document.createElement('div'); grid.className = 'hero-grid';
-                    
                     gradeMap[g].heroes.forEach(h => {
                         const unit = document.createElement('div'); unit.className = 'hero-unit';
-                        // 복구된 등급별 테두리 클래스 추가 (border-old, border-leg 등)
                         unit.innerHTML = `<img src="${h.img}" class="hero-img border-${g}" loading="lazy"><div class="hero-name">${h.title}</div>`;
-                        unit.onclick = () => showHeroDetail(h);
-                        grid.appendChild(unit);
+                        unit.onclick = () => showHeroDetail(h); grid.appendChild(unit);
                     });
-                    sec.appendChild(grid);
-                    heroesEl.appendChild(sec);
+                    sec.appendChild(grid); heroesEl.appendChild(sec);
                 }
             });
         } else if(curFilter === 'guild') {
             decksEl.style.display = 'grid'; [...filtered].reverse().forEach(p => decksEl.appendChild(createDeckPreviewCard(p)));
         } else {
-            listEl.style.display = 'grid'; [...filtered].reverse().forEach(p => listEl.appendChild(createMediaCard(p)));
+            listEl.style.display = 'grid'; 
+            // 홈 화면(all)일 경우 덱도 표시할 수 있도록 통합 처리
+            [...filtered].reverse().forEach(p => {
+                if(p.category === 'deck_reg') listEl.appendChild(createDeckPreviewCard(p));
+                else listEl.appendChild(createMediaCard(p));
+            });
         }
     };
 
-    // 복구된 미디어(유튜브 썸네일/재생 아이콘/클릭 이벤트) 카드 생성 함수
     const createMediaCard = (p) => {
         const div = document.createElement('div'); div.className = 'card';
         let thumb = "https://via.placeholder.com/400x225/1c2b3e/gold?text=GlowingS";
         let isVideo = p.category.includes('video');
-        let ytId = null;
+        let ytId = getYTubeId(p.links?.[0]);
+        if (isVideo && ytId) thumb = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+        else if (p.links && p.links[0]) thumb = p.links[0];
 
-        if (isVideo && p.links && p.links[0]) {
-            ytId = getYTubeId(p.links[0]);
-            if (ytId) thumb = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
-        } else if (p.links && p.links[0]) {
-            thumb = p.links[0];
-        }
-
-        div.innerHTML = `<img src="${thumb}" style="width:100%; aspect-ratio:16/9; object-fit:cover;" loading="lazy">
-                         <div class="card-header"><div class="card-title">${p.title}</div></div>`;
-        
+        div.innerHTML = `<img src="${thumb}" style="width:100%; aspect-ratio:16/9; object-fit:cover;" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div></div>`;
         if (isVideo) {
             div.innerHTML += `<div class="play-icon">▶️</div>`;
-            div.onclick = (e) => { if(!e.target.classList.contains('edit-btn') && !e.target.classList.contains('del-btn')) openMedia(p.links[0], 'video'); };
+            div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(p.links[0], 'video'); };
         } else {
-            div.onclick = (e) => { if(!e.target.classList.contains('edit-btn') && !e.target.classList.contains('del-btn')) openMedia(thumb, 'img'); };
+            div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(thumb, 'img'); };
         }
-
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'media')); 
         return div;
     };
 
-    // 복구된 미디어 뷰어(유튜브 iframe 및 사진 확대) 실행 함수
     const openMedia = (url, type) => {
         const mc = document.getElementById('mediaContainer');
         if(type === 'video') {
             const ytId = getYTubeId(url);
-            if(ytId) mc.innerHTML = `<iframe width="100%" style="aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${ytId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
-            else mc.innerHTML = `<p style="color:var(--red);">유효하지 않은 동영상 링크입니다.</p>`;
-        } else {
-            mc.innerHTML = `<img src="${url}" style="width:100%; border-radius:10px;">`;
-        }
+            mc.innerHTML = ytId ? `<iframe width="100%" style="aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${ytId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : `<p style="color:var(--red);">링크 오류</p>`;
+        } else mc.innerHTML = `<img src="${url}" style="width:100%; border-radius:10px;">`;
         document.getElementById('mediaModal').style.display = 'flex';
     };
 
     const createDeckPreviewCard = (p) => {
         const div = document.createElement('div'); div.className = 'card';
-        div.onclick = () => showDeckDetail(p);
+        div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) showDeckDetail(p); };
         const hMap = {}; db.posts.filter(x => x.category === 'hero_reg').forEach(h => hMap[h.title] = h);
         let hHtml = '<div class="deck-heroes-preview">';
         (p.picks || []).forEach(n => { 
@@ -357,6 +352,7 @@
         });
         hHtml += '</div>';
         div.innerHTML = `<div class="card-header"><div class="card-title">${p.title || '전략 덱'}</div></div>${hHtml}<div class="deck-preview-text">상세 보기</div>`;
+        if(isAdmin) div.appendChild(createAdminBar(p.id, 'deck'));
         return div;
     };
 
@@ -372,20 +368,10 @@
         });
         hHtml += '</div>';
         deckModalHeroes.innerHTML = hHtml;
-
-        const items = [
-            { label: '⚡ 속공', value: p.speed }, { label: '💍 반지', value: p.ring },
-            { label: '🐾 펫', value: p.pet }, { label: '📜 스킬 순서', value: p.skill },
-            { label: '🛡️ 진형', value: p.form }, { label: '📝 장비 및 특이사항', value: p.extra, full: true }
-        ];
-
+        const items = [ { label: '⚡ 속공', value: p.speed }, { label: '💍 반지', value: p.ring }, { label: '🐾 펫', value: p.pet }, { label: '📜 스킬 순서', value: p.skill }, { label: '🛡️ 진형', value: p.form }, { label: '📝 장비 및 특이사항', value: p.extra, full: true } ];
         let infoHtml = '';
-        items.forEach(item => {
-            if(item.value) { infoHtml += `<div class="deck-info-box ${item.full?'full':''}"><span class="info-label">${item.label}</span><div class="info-value">${item.value}</div></div>`; }
-        });
-
+        items.forEach(item => { if(item.value) infoHtml += `<div class="deck-info-box ${item.full?'full':''}"><span class="info-label">${item.label}</span><div class="info-value">${item.value}</div></div>`; });
         deckModalDetails.innerHTML = infoHtml || '<p style="grid-column:span 2; text-align:center; color:#555; padding:20px;">정보가 없습니다.</p>';
-        if(isAdmin) { deckModalAdmin.style.display = 'block'; deckModalAdmin.innerHTML = createAdminBar(p.id, 'deck').outerHTML; } else { deckModalAdmin.style.display = 'none'; }
         document.getElementById('deckModal').style.display = 'flex';
     };
 
@@ -393,12 +379,10 @@
         mHeroImg.src = h.img; mHeroName.innerText = h.title;
         const bColor = h.grade === 'old' ? 'var(--purple)' : (h.grade === 'rare' ? 'var(--blue)' : 'var(--gold)');
         mHeroImg.style.borderColor = bColor;
-        
         const usage = db.posts.filter(p => p.category === 'deck_reg' && (p.picks||[]).includes(h.title));
         let uHtml = '<p style="font-size:13px; color:var(--gold); margin-bottom:10px; font-weight:bold;">💡 활용 중인 조합</p>';
         usage.forEach(u => uHtml += `<div style="background:#000; padding:12px; border-radius:8px; margin-bottom:8px; font-size:13px; border-left:3px solid var(--gold); cursor:pointer;" onclick="closeModal('heroModal'); showDeckDetail(${JSON.stringify(u).replace(/"/g, '&quot;')})">${u.title}</div>`);
         mUsage.innerHTML = usage.length > 0 ? uHtml : '<p style="text-align:center; color:#555; padding:20px;">조합 정보가 없습니다.</p>';
-        if(isAdmin) mUsage.innerHTML += createAdminBar(h.id, 'media').outerHTML;
         document.getElementById('heroModal').style.display = 'flex';
     };
 
@@ -407,10 +391,10 @@
         if(!p) return;
         editId = id;
         edTit.value = p.title || ''; edType.value = p.deckType || 'offense';
+        edMain.checked = p.isMain || false;
         edP1.value = p.picks?.[0] || ''; edP2.value = p.picks?.[1] || ''; edP3.value = p.picks?.[2] || '';
         edSpeed.value = p.speed || ''; edRing.value = p.ring || ''; edPet.value = p.pet || '';
         edSkill.value = p.skill || ''; edForm.value = p.form || ''; edExtra.value = p.extra || '';
-        
         document.getElementById('deckEditor').style.display = 'flex';
         closeModal('deckModal');
     };
@@ -421,13 +405,11 @@
         const btn = document.getElementById('edSaveBtn');
         if(!edTit.value) return alert("제목을 입력해주세요.");
         btn.innerText = "저장 중..."; btn.disabled = true;
-
         let t = db.posts.find(x => x.id === editId);
-        t.title = edTit.value; t.deckType = edType.value;
+        t.title = edTit.value; t.deckType = edType.value; t.isMain = edMain.checked;
         t.picks = [edP1.value, edP2.value, edP3.value].filter(x => x);
         t.speed = edSpeed.value; t.ring = edRing.value; t.pet = edPet.value;
         t.skill = edSkill.value; t.form = edForm.value; t.extra = edExtra.value;
-
         await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) });
         location.reload();
     };
@@ -435,16 +417,10 @@
     window.startEdit = (id) => {
         const p = db.posts.find(x => x.id === id);
         if(p.category === 'deck_reg') return openDeckEditor(id);
-        
-        editId = id;
-        catIn.value = p.category;
-        catIn.dispatchEvent(new Event('change'));
-        
-        titIn.value = p.title || '';
+        editId = id; catIn.value = p.category; catIn.dispatchEvent(new Event('change'));
+        titIn.value = p.title || ''; mainIn.checked = p.isMain || false;
         if(p.category === 'hero_reg') gradeIn.value = p.grade || 'leg';
-        // 복구된 링크 불러오기
         if(p.category.includes('video')) linkIn.value = p.links ? p.links[0] : '';
-        
         adminTitle.innerText = "🛠️ 데이터 수정 모드";
         document.getElementById('admin').style.display = 'block';
         closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
@@ -455,34 +431,23 @@
         const btn = document.getElementById('upBtn'); 
         if(!titIn.value) return alert("제목을 입력해주세요.");
         btn.innerText = "저장 중..."; btn.disabled = true;
-
         let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now() };
-        t.category = catIn.value; t.title = titIn.value; t.isMain = true;
+        t.category = catIn.value; t.title = titIn.value; t.isMain = mainIn.checked;
         if(t.category === 'hero_reg') t.grade = gradeIn.value;
-        if(t.category === 'deck_reg' && !editId) { t.deckType = 'offense'; }
+        if(t.category === 'deck_reg' && !editId) t.deckType = 'offense';
         
-        // 복구된 영상 vs 파일 분기 처리
-        if(t.category === 'video_pve' || t.category === 'video_pvp') {
-            if(!linkIn.value && !editId) { alert("유튜브 링크를 입력해주세요."); resetUploadBtn(btn); return; }
+        if(t.category.includes('video')) {
             if(linkIn.value) t.links = [linkIn.value];
             await finishUpload(t);
         } else if (t.category === 'photo' || t.category === 'hero_reg') {
             if(fileIn.files.length > 0) {
-                try {
-                    const fd = new FormData(); fd.append('file', fileIn.files[0]); fd.append('upload_preset', CONFIG.PRESET);
-                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.CLOUD}/image/upload`, { method: 'POST', body: fd });
-                    const d = await res.json();
-                    if(t.category === 'hero_reg') t.img = d.secure_url; else t.links = [d.secure_url];
-                    await finishUpload(t);
-                } catch(e) { alert("업로드 실패!"); resetUploadBtn(btn); return; }
-            } else if (editId) {
-                await finishUpload(t); // 이미지 수정 안 할 때
-            } else {
-                alert("파일을 선택해주세요."); resetUploadBtn(btn); return;
+                const fd = new FormData(); fd.append('file', fileIn.files[0]); fd.append('upload_preset', CONFIG.PRESET);
+                const res = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.CLOUD}/image/upload`, { method: 'POST', body: fd });
+                const d = await res.json();
+                if(t.category === 'hero_reg') t.img = d.secure_url; else t.links = [d.secure_url];
             }
-        } else if (t.category === 'deck_reg') {
             await finishUpload(t);
-        }
+        } else await finishUpload(t);
     };
 
     const finishUpload = async (t) => {
@@ -490,8 +455,6 @@
         await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) });
         location.reload();
     };
-
-    const resetUploadBtn = (btn) => { btn.innerText = "💾 데이터 저장하기"; btn.disabled = false; };
 
     const deleteItem = async (id) => { if(confirm("정말로 삭제하시겠습니까?")) { db.posts = db.posts.filter(p => p.id !== id); await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) }); render(); closeModal('deckModal'); closeModal('heroModal'); } };
     
@@ -507,25 +470,15 @@
     const handleSearch = (e) => { keyword = e.target.value; render(); };
     const closeModal = (id) => { document.getElementById(id).style.display = 'none'; if(id === 'mediaModal') document.getElementById('mediaContainer').innerHTML = ''; };
     const closeModalOnBg = (e, id) => { if(e.target.id === id) closeModal(id); };
-    const resetAdmin = () => { editId = null; adminTitle.innerText = "📤 자료 등록"; titIn.value = ''; fileIn.value=''; linkIn.value=''; catIn.dispatchEvent(new Event('change')); };
+    const resetAdmin = () => { editId = null; adminTitle.innerText = "📤 자료 등록"; titIn.value = ''; fileIn.value=''; linkIn.value=''; mainIn.checked=false; catIn.dispatchEvent(new Event('change')); };
 
-    // 복구된 카테고리 전환 시 입력창 스위칭 로직
     catIn.onchange = (e) => {
         const v = e.target.value;
         deckUI.style.display = v === 'deck_reg' ? 'block' : 'none';
         heroGradeSet.style.display = v === 'hero_reg' ? 'block' : 'none';
-        
-        if (v === 'deck_reg') {
-            fileArea.style.display = 'none';
-        } else if (v === 'video_pve' || v === 'video_pvp') {
-            fileArea.style.display = 'block';
-            document.getElementById('fileIn').style.display = 'none';
-            document.getElementById('linkIn').style.display = 'block';
-        } else {
-            fileArea.style.display = 'block';
-            document.getElementById('fileIn').style.display = 'block';
-            document.getElementById('linkIn').style.display = 'none';
-        }
+        if (v === 'deck_reg') fileArea.style.display = 'none';
+        else if (v.includes('video')) { fileArea.style.display = 'block'; fileIn.style.display = 'none'; linkIn.style.display = 'block'; }
+        else { fileArea.style.display = 'block'; fileIn.style.display = 'block'; linkIn.style.display = 'none'; }
     };
 </script>
 </body>
