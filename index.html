@@ -1,3 +1,4 @@
+html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -24,28 +25,27 @@
         .sub-tabs { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
         .sub-btn { flex-shrink: 0; padding: 10px 16px; font-size: 13px; background: #0a0e14; color: #888; border: 1px solid #333; border-radius: 6px; white-space: nowrap; font-weight: bold; }
         .sub-btn.active-sub { border-color: var(--gold); color: var(--gold); background: rgba(212, 175, 55, 0.1); }
-        
-        /* 그리드 및 카드 높이 균형 수정 */
-        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: stretch; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start; }
         @media (min-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
         
-        .card { 
-            background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #2d343e; 
-            display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); 
-            transition: transform 0.2s; cursor: pointer; height: 100%; 
-        }
+        /* 카드 공통 스타일 수정 */
+        .card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #2d343e; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; height: fit-content; }
         .card:active { transform: scale(0.98); }
-        .card-header { 
-            padding: 15px; text-align: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333; 
-            flex-grow: 1; display: flex; flex-direction: column; justify-content: center; 
-        }
+        
+        /* 사진 및 영상 이미지 비율 고정 */
+        .card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
+        
+        .card-header { padding: 15px; text-align: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333; }
         .card-title { font-size: 14px; color: var(--gold); font-weight: bold; }
-        .deck-heroes-preview { display: flex; justify-content: center; gap: 10px; padding: 15px; background: rgba(0,0,0,0.2); flex-shrink: 0; }
-        .deck-preview-text { 
-            padding: 10px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; 
-            margin-top: auto; flex-shrink: 0; 
-        }
-
+        .deck-heroes-preview { display: flex; justify-content: center; gap: 10px; padding: 15px; background: rgba(0,0,0,0.2); }
+        .deck-preview-text { padding: 10px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; }
+        
+        /* 영웅 도감 정렬 문제 해결 */
+        .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 15px 10px; }
+        .hero-unit { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .hero-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #444; object-fit: cover; margin-bottom: 5px; }
+        .hero-name { font-size: 12px; color: #fff; text-align: center; width: 100%; word-break: keep-all; }
+        
         .modal-content-box { background: #161c24; width: 95%; max-width: 500px; border-radius: 20px; border: 1px solid var(--gold); overflow: hidden; position: relative; max-height: 90vh; display: flex; flex-direction: column; }
         .deck-heroes-row { display: flex; justify-content: center; gap: 15px; padding: 25px 10px; background: linear-gradient(to bottom, rgba(212, 175, 55, 0.1), transparent); }
         .deck-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; overflow-y: auto; }
@@ -60,13 +60,12 @@
         .editor-header { background: #161c24; border-bottom: 1px solid var(--gold); padding: 18px; text-align: center; position: sticky; top: 0; z-index: 10; }
         .editor-content { padding: 20px; flex: 1; max-width: 600px; margin: 0 auto; width: 100%; padding-bottom: 50px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; padding: 15px; }
-        .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; }
-        .hero-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
+        
         .border-old { border-color: var(--purple) !important; }
         .border-leg { border-color: var(--gold) !important; }
         .border-rare { border-color: var(--blue) !important; }
-        .hero-name { font-size: 12px; margin-top: 8px; color: #fff; text-align: center; }
-        .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; flex-shrink: 0; }
+        
+        .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; }
         .edit-btn, .del-btn { padding: 14px; font-size: 14px; flex: 1; border: none; cursor: pointer; font-weight: bold; }
         .edit-btn { background: #1c2b3e; color: #66b2ff; }
         .del-btn { background: #421010; color: #ff8888; border-left: 1px solid #333; }
@@ -99,7 +98,7 @@
             <label class="info-label">🐾 펫</label><input type="text" id="edPet">
             <label class="info-label">📜 스킬 순서</label><input type="text" id="edSkill">
             <label class="info-label">🛡️ 진형</label><input type="text" id="edForm">
-            <label class="info-label">📝 특이사항</label><textarea id="edExtra" style="height: 120px;"></textarea>
+            <label class="info-label">📝장비 및 특이사항</label><textarea id="edExtra" style="height: 120px;"></textarea>
         </div>
         <button class="btn-gold" id="edSaveBtn" onclick="saveDeckEdit()">✅ 저장 완료</button>
         <button class="btn-gold" onclick="closeDeckEditor()" style="background:#333; color:#fff; margin-top:10px;">취소</button>
@@ -263,7 +262,10 @@
         let t = "https://via.placeholder.com/400x225/1c2b3e/gold?text=GlowingS", isV = p.category.includes('video'), yId = getYTubeId(p.links?.[0]);
         if (isV && yId) t = `https://img.youtube.com/vi/${yId}/hqdefault.jpg`;
         else if (p.links && p.links[0]) t = p.links[0];
-        div.innerHTML = `<img src="${t}" style="width:100%; aspect-ratio:16/9; object-fit:cover; flex-shrink:0;" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div>${p.subCategory ? `<div style="font-size:11px; color:#888; margin-top:5px;">[${p.subCategory}]</div>` : ''}</div><div class="deck-preview-text">상세 보기</div>`;
+        
+        // 이미지 태그 스타일을 CSS로 제어하기 위해 인라인 스타일 최소화
+        div.innerHTML = `<img src="${t}" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div>${p.subCategory ? `<div style="font-size:11px; color:#888; margin-top:5px;">[${p.subCategory}]</div>` : ''}</div>`;
+        
         if (isV) { div.innerHTML += `<div class="play-icon">▶️</div>`; div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(p.links[0], 'video'); }; }
         else div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(t, 'img'); };
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'media')); return div;
@@ -273,9 +275,18 @@
         const div = document.createElement('div'); div.className = 'card';
         div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) showDeckDetail(p); };
         const hm = {}; db.posts.filter(x => x.category === 'hero_reg').forEach(h => hm[h.title] = h);
-        let hHtml = '<div class="deck-heroes-preview">';
-        (p.picks || []).forEach(n => { if(hm[n]) { const bc = hm[n].grade === 'old' ? 'var(--purple)' : (hm[n].grade === 'rare' ? 'var(--blue)' : 'var(--gold)'); hHtml += `<img src="${hm[n].img}" style="width:40px; height:40px; border-radius:50%; border:2px solid ${bc}; object-fit:cover;">`; } });
-        hHtml += '</div>'; div.innerHTML = `<div class="card-header"><div class="card-title">${p.title || '전략 덱'}</div></div>${hHtml}<div class="deck-preview-text">상세 보기</div>`;
+        
+        // 덱 카드 레이아웃을 사진 카드와 동일한 순서로 변경 (제목 -> 이미지영역 -> 텍스트) 하여 하단 공백 최소화
+        let hHtml = '<div class="deck-heroes-preview" style="background:rgba(0,0,0,0.1); padding:10px;">';
+        (p.picks || []).forEach(n => { 
+            if(hm[n]) { 
+                const bc = hm[n].grade === 'old' ? 'var(--purple)' : (hm[n].grade === 'rare' ? 'var(--blue)' : 'var(--gold)'); 
+                hHtml += `<img src="${hm[n].img}" style="width:38px; height:38px; border-radius:50%; border:2px solid ${bc}; object-fit:cover;">`; 
+            } 
+        });
+        hHtml += '</div>'; 
+        
+        div.innerHTML = `<div class="card-header"><div class="card-title">${p.title || '전략 덱'}</div></div>${hHtml}<div class="deck-preview-text" style="background:rgba(0,0,0,0.3); color:var(--gold); border-top:1px solid #333;">상세 보기</div>`;
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'deck')); return div;
     };
 
