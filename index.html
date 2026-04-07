@@ -1,4 +1,3 @@
-html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -25,27 +24,14 @@ html
         .sub-tabs { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
         .sub-btn { flex-shrink: 0; padding: 10px 16px; font-size: 13px; background: #0a0e14; color: #888; border: 1px solid #333; border-radius: 6px; white-space: nowrap; font-weight: bold; }
         .sub-btn.active-sub { border-color: var(--gold); color: var(--gold); background: rgba(212, 175, 55, 0.1); }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: start; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-        
-        /* 카드 공통 스타일 수정 */
-        .card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #2d343e; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; height: fit-content; }
+        .card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #2d343e; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; }
         .card:active { transform: scale(0.98); }
-        
-        /* 사진 및 영상 이미지 비율 고정 */
-        .card img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; }
-        
         .card-header { padding: 15px; text-align: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333; }
         .card-title { font-size: 14px; color: var(--gold); font-weight: bold; }
         .deck-heroes-preview { display: flex; justify-content: center; gap: 10px; padding: 15px; background: rgba(0,0,0,0.2); }
         .deck-preview-text { padding: 10px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; }
-        
-        /* 영웅 도감 정렬 문제 해결 */
-        .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 15px 10px; }
-        .hero-unit { display: flex; flex-direction: column; align-items: center; width: 100%; }
-        .hero-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #444; object-fit: cover; margin-bottom: 5px; }
-        .hero-name { font-size: 12px; color: #fff; text-align: center; width: 100%; word-break: keep-all; }
-        
         .modal-content-box { background: #161c24; width: 95%; max-width: 500px; border-radius: 20px; border: 1px solid var(--gold); overflow: hidden; position: relative; max-height: 90vh; display: flex; flex-direction: column; }
         .deck-heroes-row { display: flex; justify-content: center; gap: 15px; padding: 25px 10px; background: linear-gradient(to bottom, rgba(212, 175, 55, 0.1), transparent); }
         .deck-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; overflow-y: auto; }
@@ -60,11 +46,12 @@ html
         .editor-header { background: #161c24; border-bottom: 1px solid var(--gold); padding: 18px; text-align: center; position: sticky; top: 0; z-index: 10; }
         .editor-content { padding: 20px; flex: 1; max-width: 600px; margin: 0 auto; width: 100%; padding-bottom: 50px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; padding: 15px; }
-        
+        .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; }
+        .hero-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
         .border-old { border-color: var(--purple) !important; }
         .border-leg { border-color: var(--gold) !important; }
         .border-rare { border-color: var(--blue) !important; }
-        
+        .hero-name { font-size: 12px; margin-top: 8px; color: #fff; text-align: center; }
         .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; }
         .edit-btn, .del-btn { padding: 14px; font-size: 14px; flex: 1; border: none; cursor: pointer; font-weight: bold; }
         .edit-btn { background: #1c2b3e; color: #66b2ff; }
@@ -73,6 +60,13 @@ html
         .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 45px; pointer-events: none; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
         .check-container { display: flex; align-items: center; gap: 10px; margin: 10px 0 20px 5px; color: var(--gold); font-weight: bold; font-size: 15px; cursor: pointer; }
         .check-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
+
+        /* 화살표 스타일 추가 */
+        .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; width: 50px; height: 50px; border-radius: 50%; font-size: 24px; cursor: pointer; z-index: 10001; display: flex; align-items: center; justify-content: center; transition: background 0.3s; }
+        .slide-arrow:hover { background: rgba(212, 175, 55, 0.7); }
+        .arrow-prev { left: 10px; }
+        .arrow-next { right: 10px; }
+        @media (max-width: 600px) { .slide-arrow { width: 40px; height: 40px; font-size: 20px; } }
     </style>
 </head>
 <body>
@@ -145,13 +139,23 @@ html
     </div>
 </div>
 
-<div id="mediaModal" class="modal" onclick="closeModalOnBg(event, 'mediaModal')"><div class="close-circle" onclick="closeModal('mediaModal')">&times;</div><div id="mediaContainer" style="width:100%; max-width:800px; display:flex; justify-content:center;"></div></div>
+<div id="mediaModal" class="modal" onclick="closeModalOnBg(event, 'mediaModal')">
+    <div class="close-circle" onclick="closeModal('mediaModal')">&times;</div>
+    <button class="slide-arrow arrow-prev" onclick="moveSlide(-1)">&#10094;</button>
+    <div id="mediaContainer" style="width:100%; max-width:800px; display:flex; justify-content:center;"></div>
+    <button class="slide-arrow arrow-next" onclick="moveSlide(1)">&#10095;</button>
+</div>
+
 <div id="deckModal" class="modal" onclick="closeModalOnBg(event, 'deckModal')"><div class="modal-content-box"><div class="close-circle" onclick="closeModal('deckModal')">&times;</div><div id="deckModalTitle" style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #333;"></div><div id="deckModalHeroes"></div><div id="deckModalDetails" class="deck-detail-grid"></div></div></div>
 <div id="heroModal" class="modal" onclick="closeModalOnBg(event, 'heroModal')"><div class="gate-box" style="max-width:400px; width:92%;"><div class="close-circle" onclick="closeModal('heroModal')">&times;</div><img id="mHeroImg" class="hero-img" style="width:90px; height:90px; margin-bottom:10px;"><h3 id="mHeroName" style="color:var(--gold);"></h3><div id="mUsage" style="max-height:280px; overflow-y:auto; text-align:left; margin-top:15px; border-top:1px solid #333; padding-top:10px;"></div></div></div>
 
 <script>
     const CONFIG = { API: "https://api.jsonbin.io/v3/b/69ae6f09d0ea881f40ff0f44", KEY: "$2a$10$hcOVgg3LvdoRgRZdayPtVOA3gbxyOY7UibDbi/jcJnMlPiok/xlcO", CLOUD: "djef3ylqf", PRESET: "guild_preset" };
     let db = { posts: [] }, isAdmin = false, curFilter = 'all', curSub = '전체', keyword = "", editId = null;
+    
+    // 슬라이드 관련 변수
+    let currentMediaList = [];
+    let currentMediaIdx = 0;
 
     window.onload = () => {
         if(sessionStorage.getItem('auth') === 'true') {
@@ -229,6 +233,9 @@ html
             return true;
         });
 
+        // 슬라이드를 위해 미디어 리스트 저장 (역순 정렬 반영)
+        currentMediaList = [...filtered].reverse().filter(p => p.category !== 'deck_reg' && p.category !== 'hero_reg');
+
         if(curFilter === 'guild' && curSub === 'hero') {
             heroesEl.style.display = 'block';
             const gm = { 'old': { t: '🟣 구세나', c: 'var(--purple)', h: [] }, 'leg': { t: '🟡 전설', c: 'var(--gold)', h: [] }, 'rare': { t: '🔵 희귀', c: 'var(--blue)', h: [] } };
@@ -262,12 +269,16 @@ html
         let t = "https://via.placeholder.com/400x225/1c2b3e/gold?text=GlowingS", isV = p.category.includes('video'), yId = getYTubeId(p.links?.[0]);
         if (isV && yId) t = `https://img.youtube.com/vi/${yId}/hqdefault.jpg`;
         else if (p.links && p.links[0]) t = p.links[0];
+        div.innerHTML = `<img src="${t}" style="width:100%; aspect-ratio:16/9; object-fit:cover;" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div>${p.subCategory ? `<div style="font-size:11px; color:#888; margin-top:5px;">[${p.subCategory}]</div>` : ''}</div>`;
         
-        // 이미지 태그 스타일을 CSS로 제어하기 위해 인라인 스타일 최소화
-        div.innerHTML = `<img src="${t}" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div>${p.subCategory ? `<div style="font-size:11px; color:#888; margin-top:5px;">[${p.subCategory}]</div>` : ''}</div>`;
-        
-        if (isV) { div.innerHTML += `<div class="play-icon">▶️</div>`; div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(p.links[0], 'video'); }; }
-        else div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(t, 'img'); };
+        div.onclick = (e) => { 
+            if(!e.target.closest('.admin-edit-bar')) {
+                const idx = currentMediaList.findIndex(m => m.id === p.id);
+                openMedia(idx);
+            }
+        };
+
+        if (isV) { div.innerHTML += `<div class="play-icon">▶️</div>`; }
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'media')); return div;
     };
 
@@ -275,18 +286,9 @@ html
         const div = document.createElement('div'); div.className = 'card';
         div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) showDeckDetail(p); };
         const hm = {}; db.posts.filter(x => x.category === 'hero_reg').forEach(h => hm[h.title] = h);
-        
-        // 덱 카드 레이아웃을 사진 카드와 동일한 순서로 변경 (제목 -> 이미지영역 -> 텍스트) 하여 하단 공백 최소화
-        let hHtml = '<div class="deck-heroes-preview" style="background:rgba(0,0,0,0.1); padding:10px;">';
-        (p.picks || []).forEach(n => { 
-            if(hm[n]) { 
-                const bc = hm[n].grade === 'old' ? 'var(--purple)' : (hm[n].grade === 'rare' ? 'var(--blue)' : 'var(--gold)'); 
-                hHtml += `<img src="${hm[n].img}" style="width:38px; height:38px; border-radius:50%; border:2px solid ${bc}; object-fit:cover;">`; 
-            } 
-        });
-        hHtml += '</div>'; 
-        
-        div.innerHTML = `<div class="card-header"><div class="card-title">${p.title || '전략 덱'}</div></div>${hHtml}<div class="deck-preview-text" style="background:rgba(0,0,0,0.3); color:var(--gold); border-top:1px solid #333;">상세 보기</div>`;
+        let hHtml = '<div class="deck-heroes-preview">';
+        (p.picks || []).forEach(n => { if(hm[n]) { const bc = hm[n].grade === 'old' ? 'var(--purple)' : (hm[n].grade === 'rare' ? 'var(--blue)' : 'var(--gold)'); hHtml += `<img src="${hm[n].img}" style="width:40px; height:40px; border-radius:50%; border:2px solid ${bc}; object-fit:cover;">`; } });
+        hHtml += '</div>'; div.innerHTML = `<div class="card-header"><div class="card-title">${p.title || '전략 덱'}</div></div>${hHtml}<div class="deck-preview-text">상세 보기</div>`;
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'deck')); return div;
     };
 
@@ -296,7 +298,7 @@ html
         let hHtml = '<div class="deck-heroes-row">';
         (p.picks || []).forEach(n => { if(hm[n]) { const bc = hm[n].grade === 'old' ? 'var(--purple)' : (hm[n].grade === 'rare' ? 'var(--blue)' : 'var(--gold)'); hHtml += `<div style="text-align:center;"><img src="${hm[n].img}" style="width:60px; height:60px; border-radius:50%; border:2px solid ${bc}; object-fit:cover;"><div style="font-size:11px; margin-top:8px; color:#fff;">${n}</div></div>`; } });
         hHtml += '</div>'; deckModalHeroes.innerHTML = hHtml;
-        const items = [{l:'⚡ 속공', v:p.speed}, {l:'💍 반지', v:p.ring}, {l:'🐾 펫', v:p.pet}, {l:'📜 스킬 순서', v:p.skill}, {l:'🛡️ 진형', v:p.form}, {l:'📝 특이사항', v:p.extra, f:true}];
+        const items = [{l:'⚡ 속공', v:p.speed}, {l:'💍 반지', v:p.ring}, {l:'🐾 펫', v:p.pet}, {l:'📜 스킬 순서', v:p.skill}, {l:'🛡️ 진형', v:p.form}, {l:'📝장비 및 특이사항', v:p.extra, f:true}];
         let iHtml = ''; items.forEach(i => { if(i.v) iHtml += `<div class="deck-info-box ${i.f?'full':''}"><span class="info-label">${i.l}</span><div class="info-value">${i.v}</div></div>`; });
         deckModalDetails.innerHTML = iHtml || '<p style="grid-column:span 2; text-align:center; color:#555; padding:20px;">정보가 없습니다.</p>';
         document.getElementById('deckModal').style.display = 'flex';
@@ -318,6 +320,7 @@ html
         document.getElementById('heroModal').style.display = 'flex';
     };
 
+    // [중요] 덱 에디터 열기
     window.openDeckEditor = (id) => {
         const p = db.posts.find(x => x.id === id); if(!p) return;
         editId = id; edTit.value = p.title || ''; edType.value = p.deckType || 'offense'; edMain.checked = p.isMain || false;
@@ -328,6 +331,7 @@ html
         closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
     };
 
+    // [업데이트] 덱 에디터 취소 시 확인창 기능
     window.closeDeckEditor = () => {
         if(confirm("수정 중인 내용이 저장되지 않습니다. 닫으시겠습니까?")) {
             document.getElementById('deckEditor').style.display = 'none';
@@ -413,12 +417,38 @@ html
     const goSub = (s) => { curSub = s; render(); };
     const handleSearch = (e) => { keyword = e.target.value; render(); };
     const closeModal = (id) => { document.getElementById(id).style.display = 'none'; if(id === 'mediaModal') document.getElementById('mediaContainer').innerHTML = ''; };
-    const openMedia = (u, t) => {
+    
+    // 미디어 열기 (슬라이드 인덱스 기반)
+    const openMedia = (idx) => {
+        if (idx < 0 || idx >= currentMediaList.length) return;
+        currentMediaIdx = idx;
+        const p = currentMediaList[idx];
+        const u = p.links ? p.links[0] : "";
+        const t = p.category.includes('video') ? 'video' : 'img';
+        
         const mc = document.getElementById('mediaContainer');
-        if(t === 'video') { const yId = getYTubeId(u); mc.innerHTML = yId ? `<iframe width="100%" style="aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${yId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : `<p>링크 오류</p>`; }
-        else mc.innerHTML = `<img src="${u}" style="width:100%; border-radius:10px;">`;
+        if(t === 'video') { 
+            const yId = getYTubeId(u); 
+            mc.innerHTML = yId ? `<iframe width="100%" style="aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${yId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : `<p>링크 오류</p>`; 
+        } else {
+            mc.innerHTML = `<img src="${u}" style="width:100%; border-radius:10px; max-height:80vh; object-fit:contain;">`;
+        }
+        
+        // 화살표 표시 여부
+        document.querySelector('.arrow-prev').style.display = currentMediaList.length > 1 ? 'flex' : 'none';
+        document.querySelector('.arrow-next').style.display = currentMediaList.length > 1 ? 'flex' : 'none';
+        
         document.getElementById('mediaModal').style.display = 'flex';
     };
+
+    // 슬라이드 이동
+    window.moveSlide = (step) => {
+        let nextIdx = currentMediaIdx + step;
+        if (nextIdx < 0) nextIdx = currentMediaList.length - 1;
+        if (nextIdx >= currentMediaList.length) nextIdx = 0;
+        openMedia(nextIdx);
+    };
+
     const closeModalOnBg = (e, id) => { if(e.target.id === id) closeModal(id); };
     const resetAdmin = () => { editId = null; adminTitle.innerText = "📤 자료 등록"; titIn.value = ''; fileIn.value=''; linkIn.value=''; mainIn.checked=false; catIn.dispatchEvent(new Event('change')); };
 
