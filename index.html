@@ -46,12 +46,24 @@
         .editor-header { background: #161c24; border-bottom: 1px solid var(--gold); padding: 18px; text-align: center; position: sticky; top: 0; z-index: 10; }
         .editor-content { padding: 20px; flex: 1; max-width: 600px; margin: 0 auto; width: 100%; padding-bottom: 50px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; padding: 15px; }
+        
+        /* 영웅 도감 그리드 및 유닛 스타일 수정 */
         .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; }
-        .hero-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
+        .hero-unit { position: relative; width: 75px; height: 75px; margin: 0 auto; cursor: pointer; }
+        .hero-img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
         .border-old { border-color: var(--purple) !important; }
         .border-leg { border-color: var(--gold) !important; }
         .border-rare { border-color: var(--blue) !important; }
-        .hero-name { font-size: 12px; margin-top: 8px; color: #fff; text-align: center; }
+        
+        /* 영웅 이름을 중앙 하단에 위치하도록 수정 */
+        .hero-name { 
+            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+            width: 90%; background: rgba(0, 0, 0, 0.7); color: #fff; font-size: 10px;
+            text-align: center; padding: 2px 0; border-radius: 4px; font-weight: bold;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            pointer-events: none;
+        }
+
         .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; }
         .edit-btn, .del-btn { padding: 14px; font-size: 14px; flex: 1; border: none; cursor: pointer; font-weight: bold; }
         .edit-btn { background: #1c2b3e; color: #66b2ff; }
@@ -61,7 +73,6 @@
         .check-container { display: flex; align-items: center; gap: 10px; margin: 10px 0 20px 5px; color: var(--gold); font-weight: bold; font-size: 15px; cursor: pointer; }
         .check-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
 
-        /* [수정] 화살표 및 카운터 위치 조정 */
         .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); color: #fff; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10001; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); }
         .arrow-prev { left: 15px; }
         .arrow-next { right: 15px; }
@@ -159,7 +170,6 @@
     const CONFIG = { API: "https://api.jsonbin.io/v3/b/69ae6f09d0ea881f40ff0f44", KEY: "$2a$10$hcOVgg3LvdoRgRZdayPtVOA3gbxyOY7UibDbi/jcJnMlPiok/xlcO", CLOUD: "djef3ylqf", PRESET: "guild_preset" };
     let db = { posts: [] }, isAdmin = false, curFilter = 'all', curSub = '전체', keyword = "", editId = null;
     
-    // [수정] 슬라이드용 전역 변수: 현재 열린 '게시물'의 사진들만 담음
     let currentSlideLinks = [];
     let currentSlideIdx = 0;
     let currentSlideIsVideo = false;
@@ -243,16 +253,15 @@
         if(curFilter === 'guild' && curSub === 'hero') {
             heroesEl.style.display = 'block';
             const gm = { 'old': { t: '🟣 구세나', c: 'var(--purple)', h: [] }, 'leg': { t: '🟡 전설', c: 'var(--gold)', h: [] }, 'rare': { t: '🔵 희귀', c: 'var(--blue)', h: [] } };
-            // [수정] 영웅 도감 내부 이름순 정렬
             filtered.sort((a,b) => a.title.localeCompare(b.title)).forEach(h => { if(gm[h.grade]) gm[h.grade].h.push(h); else gm['leg'].h.push(h); });
             ['old', 'leg', 'rare'].forEach(g => {
                 if(gm[g].h.length > 0) {
                     const sec = document.createElement('div'); sec.innerHTML = `<h3 style="color:${gm[g].c}; margin: 25px 0 10px 5px; border-bottom:1px solid #333; padding-bottom:5px;">${gm[g].t}</h3>`;
                     const grid = document.createElement('div'); grid.className = 'hero-grid';
                     gm[g].h.forEach(h => {
-                        const u = document.createElement('div'); u.className = 'hero-unit';
-                        u.innerHTML = `<img src="${h.img}" class="hero-img border-${g}" loading="lazy"><div class="hero-name">${h.title}</div>`;
-                        u.onclick = () => showHeroDetail(h); grid.appendChild(u);
+                        const unit = document.createElement('div'); unit.className = 'hero-unit';
+                        unit.innerHTML = `<img src="${h.img}" class="hero-img border-${g}" loading="lazy"><div class="hero-name">${h.title}</div>`;
+                        unit.onclick = () => showHeroDetail(h); grid.appendChild(unit);
                     });
                     sec.appendChild(grid); heroesEl.appendChild(sec);
                 }
@@ -277,12 +286,7 @@
         
         div.innerHTML = `<img src="${t}" style="width:100%; aspect-ratio:16/9; object-fit:cover; flex-shrink:0;" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div>${p.subCategory ? `<div style="font-size:11px; color:#888; margin-top:5px;">[${p.subCategory}]</div>` : ''}</div><div class="deck-preview-text">상세 보기</div>`;
         
-        div.onclick = (e) => { 
-            if(!e.target.closest('.admin-edit-bar')) {
-                // [수정] 클릭 시 해당 게시물의 링크들만 슬라이드 리스트에 할당
-                openPostMedia(p);
-            }
-        };
+        div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openPostMedia(p); };
         if (isV) div.innerHTML += `<div class="play-icon">▶️</div>`;
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'media')); return div;
     };
@@ -297,7 +301,6 @@
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'deck')); return div;
     };
 
-    // [수정] 게시물 내부 슬라이드 로직
     const openPostMedia = (p) => {
         currentSlideLinks = p.links || [];
         currentSlideIdx = 0;
@@ -310,17 +313,14 @@
         const mc = document.getElementById('mediaContainer');
         const url = currentSlideLinks[currentSlideIdx];
         const indicator = document.getElementById('slideIndicator');
-        
         indicator.innerText = `${currentSlideIdx + 1} / ${currentSlideLinks.length}`;
         indicator.style.display = currentSlideLinks.length > 1 ? 'block' : 'none';
-        
         if (currentSlideIsVideo) {
             const yId = getYTubeId(url);
             mc.innerHTML = yId ? `<iframe width="100%" style="aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${yId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : `<p>링크 오류</p>`;
         } else {
             mc.innerHTML = `<img src="${url}" style="max-width:100%; max-height:80vh; border-radius:10px; object-fit:contain;">`;
         }
-
         document.getElementById('prevBtn').style.display = currentSlideLinks.length > 1 ? 'flex' : 'none';
         document.getElementById('nextBtn').style.display = currentSlideLinks.length > 1 ? 'flex' : 'none';
     };
@@ -344,11 +344,7 @@
         document.getElementById('deckModal').style.display = 'flex';
     };
 
-    window.showDeckDetailById = (id) => {
-        const targetDeck = db.posts.find(x => x.id === id);
-        if(targetDeck) showDeckDetail(targetDeck);
-    };
-
+    window.showDeckDetailById = (id) => { const targetDeck = db.posts.find(x => x.id === id); if(targetDeck) showDeckDetail(targetDeck); };
     const showHeroDetail = (h) => {
         mHeroImg.src = h.img; mHeroName.innerText = h.title;
         const bc = h.grade === 'old' ? 'var(--purple)' : (h.grade === 'rare' ? 'var(--blue)' : 'var(--gold)');
@@ -366,12 +362,10 @@
         edP1.value = p.picks?.[0] || ''; edP2.value = p.picks?.[1] || ''; edP3.value = p.picks?.[2] || '';
         edSpeed.value = p.speed || ''; edRing.value = p.ring || ''; edPet.value = p.pet || '';
         edSkill.value = p.skill || ''; edForm.value = p.form || ''; edExtra.value = p.extra || '';
-        document.getElementById('deckEditor').style.display = 'flex'; 
-        closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
+        document.getElementById('deckEditor').style.display = 'flex'; closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
     };
 
     window.closeDeckEditor = () => { if(confirm("수정 중인 내용이 저장되지 않습니다. 닫으시겠습니까?")) document.getElementById('deckEditor').style.display = 'none'; };
-
     const saveDeckEdit = async () => {
         const btn = document.getElementById('edSaveBtn'); if(!edTit.value) return alert("제목 필수");
         btn.innerText = "저장 중..."; btn.disabled = true;
@@ -399,8 +393,7 @@
     };
 
     const doUpload = async () => {
-        const btn = document.getElementById('upBtn'); 
-        if(!titIn.value) return alert("제목 필수");
+        const btn = document.getElementById('upBtn'); if(!titIn.value) return alert("제목 필수");
         btn.innerText = "저장 중..."; btn.disabled = true;
         try {
             let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now() };
