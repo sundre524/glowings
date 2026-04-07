@@ -168,9 +168,15 @@
         });
     };
 
+    // [보완 1] 모바일 브라우저 호환성을 위한 검색 필터 로직 개선
     const filterHeroSelect = (input, target) => {
-        const v = input.value, opts = document.getElementById(target).options;
-        for(let i=0; i<opts.length; i++) { opts[i].style.display = opts[i].text.includes(v) ? "block" : "none"; }
+        const v = input.value.toLowerCase(), opts = document.getElementById(target).options;
+        for(let i=0; i<opts.length; i++) { 
+            const isMatch = opts[i].text.toLowerCase().includes(v) || opts[i].value === "";
+            opts[i].style.display = isMatch ? "block" : "none"; 
+            opts[i].hidden = !isMatch; // Safari 호환
+            opts[i].disabled = !isMatch; // 완벽한 숨김 처리
+        }
     };
 
     const render = () => {
@@ -194,10 +200,16 @@
         }
 
         let filtered = db.posts.filter(p => {
-            if(keyword && !(p.title||"").includes(keyword)) return false;
+            // [보완 2] 검색 시 덱 내부의 영웅 이름까지 포함하여 대소문자 구분 없이 검색
+            if(keyword) {
+                const k = keyword.toLowerCase();
+                const matchTitle = (p.title || "").toLowerCase().includes(k);
+                const matchHero = p.picks && p.picks.some(h => (h || "").toLowerCase().includes(k));
+                if(!matchTitle && !matchHero) return false;
+            }
+            
             if(curFilter === 'all') return p.isMain === true;
             
-            // 길드전 로직
             if(curFilter === 'guild') {
                 if(curSub === 'hero') return p.category === 'hero_reg';
                 if(p.category !== 'deck_reg') return false;
@@ -205,7 +217,6 @@
                 return true;
             }
 
-            // 일반 카테고리 로직
             if(p.category !== curFilter) return false;
             if(curSub !== '전체') return p.subCategory === curSub;
             return true;
@@ -272,13 +283,22 @@
         document.getElementById('deckModal').style.display = 'flex';
     };
 
+    // [보완 3] HTML 파싱 오류 방지를 위한 안전한 모달 오픈 함수 추가
+    window.showDeckDetailById = (id) => {
+        const targetDeck = db.posts.find(x => x.id === id);
+        if(targetDeck) showDeckDetail(targetDeck);
+    };
+
     const showHeroDetail = (h) => {
         mHeroImg.src = h.img; mHeroName.innerText = h.title;
         const bc = h.grade === 'old' ? 'var(--purple)' : (h.grade === 'rare' ? 'var(--blue)' : 'var(--gold)');
         mHeroImg.style.borderColor = bc;
         const usage = db.posts.filter(p => p.category === 'deck_reg' && (p.picks||[]).includes(h.title));
         let uHtml = '<p style="font-size:13px; color:var(--gold); margin-bottom:10px; font-weight:bold;">💡 활용 중인 조합</p>';
-        usage.forEach(u => uHtml += `<div style="background:#000; padding:12px; border-radius:8px; margin-bottom:8px; font-size:13px; border-left:3px solid var(--gold); cursor:pointer;" onclick="closeModal('heroModal'); showDeckDetail(${JSON.stringify(u).replace(/"/g, '&quot;')})">${u.title}</div>`);
+        
+        // [보완 4] 덱 제목의 특수문자나 공백이 HTML을 깨뜨리지 않도록 showDeckDetailById 사용
+        usage.forEach(u => uHtml += `<div style="background:#000; padding:12px; border-radius:8px; margin-bottom:8px; font-size:13px; border-left:3px solid var(--gold); cursor:pointer;" onclick="closeModal('heroModal'); showDeckDetailById(${u.id})">${u.title}</div>`);
+        
         mUsage.innerHTML = usage.length > 0 ? uHtml : '<p style="text-align:center; color:#555; padding:20px;">조합 정보가 없습니다.</p>';
         document.getElementById('heroModal').style.display = 'flex';
     };
@@ -295,13 +315,18 @@
     const saveDeckEdit = async () => {
         const btn = document.getElementById('edSaveBtn'); if(!edTit.value) return alert("제목을 입력해주세요.");
         btn.innerText = "저장 중..."; btn.disabled = true;
-        let t = db.posts.find(x => x.id === editId);
-        t.title = edTit.value; t.deckType = edType.value; t.isMain = edMain.checked;
-        t.picks = [edP1.value, edP2.value, edP3.value].filter(x => x);
-        t.speed = edSpeed.value; t.ring = edRing.value; t.pet = edPet.value;
-        t.skill = edSkill.value; t.form = edForm.value; t.extra = edExtra.value;
-        await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) });
-        location.reload();
+        try {
+            let t = db.posts.find(x => x.id === editId);
+            t.title = edTit.value; t.deckType = edType.value; t.isMain = edMain.checked;
+            t.picks = [edP1.value, edP2.value, edP3.value].filter(x => x);
+            t.speed = edSpeed.value; t.ring = edRing.value; t.pet = edPet.value;
+            t.skill = edSkill.value; t.form = edForm.value; t.extra = edExtra.value;
+            await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) });
+            location.reload();
+        } catch (e) {
+            alert("저장 중 오류가 발생했습니다.");
+            btn.innerText = "✅ 저장 완료"; btn.disabled = false;
+        }
     };
 
     window.startEdit = (id) => {
@@ -317,21 +342,41 @@
     };
 
     const doUpload = async () => {
-        const btn = document.getElementById('upBtn'); if(!titIn.value) return alert("제목을 입력해주세요.");
+        const btn = document.getElementById('upBtn'); 
+        if(!titIn.value) return alert("제목을 입력해주세요.");
+        
+        // [보완 5] 빈 파일 혹은 빈 링크 업로드 시 에러 방지 처리
+        if(!editId) {
+            if ((catIn.value === 'photo' || catIn.value === 'hero_reg') && fileIn.files.length === 0) return alert("이미지 파일을 첨부해주세요.");
+            if (catIn.value.includes('video') && !linkIn.value) return alert("유튜브 링크를 입력해주세요.");
+        }
+
         btn.innerText = "저장 중..."; btn.disabled = true;
-        let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now() };
-        t.category = catIn.value; t.title = titIn.value; t.isMain = mainIn.checked;
-        if(t.category.startsWith('video')) t.subCategory = subCatIn.value;
-        if(t.category === 'hero_reg') t.grade = gradeIn.value;
-        if(t.category === 'deck_reg' && !editId) t.deckType = 'offense';
-        if(t.category.includes('video')) { if(linkIn.value) t.links = [linkIn.value]; await finishUpload(t); } 
-        else if (t.category === 'photo' || t.category === 'hero_reg') {
-            if(fileIn.files.length > 0) {
-                const fd = new FormData(); fd.append('file', fileIn.files[0]); fd.append('upload_preset', CONFIG.PRESET);
-                const r = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.CLOUD}/image/upload`, { method: 'POST', body: fd });
-                const d = await r.json(); if(t.category === 'hero_reg') t.img = d.secure_url; else t.links = [d.secure_url];
-            } await finishUpload(t);
-        } else await finishUpload(t);
+        
+        try {
+            let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now() };
+            t.category = catIn.value; t.title = titIn.value; t.isMain = mainIn.checked;
+            if(t.category.startsWith('video')) t.subCategory = subCatIn.value;
+            if(t.category === 'hero_reg') t.grade = gradeIn.value;
+            if(t.category === 'deck_reg' && !editId) t.deckType = 'offense';
+            
+            if(t.category.includes('video')) { 
+                if(linkIn.value) t.links = [linkIn.value]; 
+                await finishUpload(t); 
+            } else if (t.category === 'photo' || t.category === 'hero_reg') {
+                if(fileIn.files.length > 0) {
+                    const fd = new FormData(); fd.append('file', fileIn.files[0]); fd.append('upload_preset', CONFIG.PRESET);
+                    const r = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.CLOUD}/image/upload`, { method: 'POST', body: fd });
+                    const d = await r.json(); 
+                    if(t.category === 'hero_reg') t.img = d.secure_url; else t.links = [d.secure_url];
+                } 
+                await finishUpload(t);
+            } else await finishUpload(t);
+        } catch (e) {
+            alert("서버 오류로 인해 저장이 중단되었습니다.");
+            console.error(e);
+            btn.innerText = "💾 저장하기"; btn.disabled = false;
+        }
     };
 
     const finishUpload = async (t) => {
