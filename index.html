@@ -61,15 +61,14 @@
         .check-container { display: flex; align-items: center; gap: 10px; margin: 10px 0 20px 5px; color: var(--gold); font-weight: bold; font-size: 15px; cursor: pointer; }
         .check-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
 
-        /* [수정 부분] 화살표와 겹치지 않도록 슬라이드 카운터 위치 조정 */
+        /* [수정] 화살표 및 카운터 위치 조정 */
         .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); color: #fff; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10001; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); }
         .arrow-prev { left: 15px; }
         .arrow-next { right: 15px; }
         
-        /* [핵심 수정] 우측 상단 카운터를 중앙 하단 혹은 상단 중앙으로 이동시켜 겹침 방지 */
         .slide-counter { 
             position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            background: rgba(0,0,0,0.6); color: var(--gold); padding: 5px 12px; 
+            background: rgba(0,0,0,0.6); color: var(--gold); padding: 5px 15px; 
             border-radius: 20px; font-size: 13px; font-weight: bold; z-index: 10002; 
             border: 1px solid var(--gold); pointer-events: none;
         }
@@ -148,9 +147,9 @@
 <div id="mediaModal" class="modal" onclick="closeModalOnBg(event, 'mediaModal')">
     <div class="close-circle" onclick="closeModal('mediaModal')">&times;</div>
     <div id="slideIndicator" class="slide-counter">1 / 1</div>
-    <button class="slide-arrow arrow-prev" onclick="moveSlide(-1)">&#10094;</button>
+    <button id="prevBtn" class="slide-arrow arrow-prev" onclick="moveSlide(-1)">&#10094;</button>
     <div id="mediaContainer" style="width:100%; max-width:800px; display:flex; justify-content:center;"></div>
-    <button class="slide-arrow arrow-next" onclick="moveSlide(1)">&#10095;</button>
+    <button id="nextBtn" class="slide-arrow arrow-next" onclick="moveSlide(1)">&#10095;</button>
 </div>
 
 <div id="deckModal" class="modal" onclick="closeModalOnBg(event, 'deckModal')"><div class="modal-content-box"><div class="close-circle" onclick="closeModal('deckModal')">&times;</div><div id="deckModalTitle" style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #333;"></div><div id="deckModalHeroes"></div><div id="deckModalDetails" class="deck-detail-grid"></div></div></div>
@@ -159,7 +158,11 @@
 <script>
     const CONFIG = { API: "https://api.jsonbin.io/v3/b/69ae6f09d0ea881f40ff0f44", KEY: "$2a$10$hcOVgg3LvdoRgRZdayPtVOA3gbxyOY7UibDbi/jcJnMlPiok/xlcO", CLOUD: "djef3ylqf", PRESET: "guild_preset" };
     let db = { posts: [] }, isAdmin = false, curFilter = 'all', curSub = '전체', keyword = "", editId = null;
-    let currentSlideList = [], currentSlideIdx = 0;
+    
+    // [수정] 슬라이드용 전역 변수: 현재 열린 '게시물'의 사진들만 담음
+    let currentSlideLinks = [];
+    let currentSlideIdx = 0;
+    let currentSlideIsVideo = false;
 
     window.onload = () => {
         if(sessionStorage.getItem('auth') === 'true') {
@@ -237,12 +240,11 @@
             return true;
         });
 
-        currentSlideList = [...filtered].reverse().filter(p => p.category !== 'deck_reg' && p.category !== 'hero_reg');
-
         if(curFilter === 'guild' && curSub === 'hero') {
             heroesEl.style.display = 'block';
             const gm = { 'old': { t: '🟣 구세나', c: 'var(--purple)', h: [] }, 'leg': { t: '🟡 전설', c: 'var(--gold)', h: [] }, 'rare': { t: '🔵 희귀', c: 'var(--blue)', h: [] } };
-            filtered.forEach(h => { if(gm[h.grade]) gm[h.grade].h.push(h); else gm['leg'].h.push(h); });
+            // [수정] 영웅 도감 내부 이름순 정렬
+            filtered.sort((a,b) => a.title.localeCompare(b.title)).forEach(h => { if(gm[h.grade]) gm[h.grade].h.push(h); else gm['leg'].h.push(h); });
             ['old', 'leg', 'rare'].forEach(g => {
                 if(gm[g].h.length > 0) {
                     const sec = document.createElement('div'); sec.innerHTML = `<h3 style="color:${gm[g].c}; margin: 25px 0 10px 5px; border-bottom:1px solid #333; padding-bottom:5px;">${gm[g].t}</h3>`;
@@ -272,11 +274,13 @@
         let t = "https://via.placeholder.com/400x225/1c2b3e/gold?text=GlowingS", isV = p.category.includes('video'), yId = getYTubeId(p.links?.[0]);
         if (isV && yId) t = `https://img.youtube.com/vi/${yId}/hqdefault.jpg`;
         else if (p.links && p.links[0]) t = p.links[0];
+        
         div.innerHTML = `<img src="${t}" style="width:100%; aspect-ratio:16/9; object-fit:cover; flex-shrink:0;" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div>${p.subCategory ? `<div style="font-size:11px; color:#888; margin-top:5px;">[${p.subCategory}]</div>` : ''}</div><div class="deck-preview-text">상세 보기</div>`;
+        
         div.onclick = (e) => { 
             if(!e.target.closest('.admin-edit-bar')) {
-                const idx = currentSlideList.findIndex(m => m.id === p.id);
-                openSlideMedia(idx);
+                // [수정] 클릭 시 해당 게시물의 링크들만 슬라이드 리스트에 할당
+                openPostMedia(p);
             }
         };
         if (isV) div.innerHTML += `<div class="play-icon">▶️</div>`;
@@ -293,37 +297,39 @@
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'deck')); return div;
     };
 
-    const openSlideMedia = (idx) => {
-        if (idx < 0 || idx >= currentSlideList.length) return;
-        currentSlideIdx = idx;
-        const p = currentSlideList[idx];
-        const isV = p.category.includes('video');
-        const url = p.links ? p.links[0] : "";
+    // [수정] 게시물 내부 슬라이드 로직
+    const openPostMedia = (p) => {
+        currentSlideLinks = p.links || [];
+        currentSlideIdx = 0;
+        currentSlideIsVideo = p.category.includes('video');
+        updateSlideContent();
+        document.getElementById('mediaModal').style.display = 'flex';
+    };
+
+    const updateSlideContent = () => {
         const mc = document.getElementById('mediaContainer');
+        const url = currentSlideLinks[currentSlideIdx];
+        const indicator = document.getElementById('slideIndicator');
         
-        // 인디케이터 업데이트
-        document.getElementById('slideIndicator').innerText = `${currentSlideIdx + 1} / ${currentSlideList.length}`;
+        indicator.innerText = `${currentSlideIdx + 1} / ${currentSlideLinks.length}`;
+        indicator.style.display = currentSlideLinks.length > 1 ? 'block' : 'none';
         
-        if(isV) {
+        if (currentSlideIsVideo) {
             const yId = getYTubeId(url);
             mc.innerHTML = yId ? `<iframe width="100%" style="aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${yId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : `<p>링크 오류</p>`;
         } else {
             mc.innerHTML = `<img src="${url}" style="max-width:100%; max-height:80vh; border-radius:10px; object-fit:contain;">`;
         }
-        
-        const prevBtn = document.querySelector('.arrow-prev');
-        const nextBtn = document.querySelector('.arrow-next');
-        prevBtn.style.display = currentSlideList.length > 1 ? 'flex' : 'none';
-        nextBtn.style.display = currentSlideList.length > 1 ? 'flex' : 'none';
-        
-        document.getElementById('mediaModal').style.display = 'flex';
+
+        document.getElementById('prevBtn').style.display = currentSlideLinks.length > 1 ? 'flex' : 'none';
+        document.getElementById('nextBtn').style.display = currentSlideLinks.length > 1 ? 'flex' : 'none';
     };
 
     window.moveSlide = (step) => {
-        let nIdx = currentSlideIdx + step;
-        if (nIdx < 0) nIdx = currentSlideList.length - 1;
-        if (nIdx >= currentSlideList.length) nIdx = 0;
-        openSlideMedia(nIdx);
+        currentSlideIdx += step;
+        if (currentSlideIdx < 0) currentSlideIdx = currentSlideLinks.length - 1;
+        if (currentSlideIdx >= currentSlideLinks.length) currentSlideIdx = 0;
+        updateSlideContent();
     };
 
     const showDeckDetail = (p) => {
