@@ -168,14 +168,12 @@
         });
     };
 
-    // [보완 1] 모바일 브라우저 호환성을 위한 검색 필터 로직 개선
     const filterHeroSelect = (input, target) => {
         const v = input.value.toLowerCase(), opts = document.getElementById(target).options;
         for(let i=0; i<opts.length; i++) { 
             const isMatch = opts[i].text.toLowerCase().includes(v) || opts[i].value === "";
             opts[i].style.display = isMatch ? "block" : "none"; 
-            opts[i].hidden = !isMatch; // Safari 호환
-            opts[i].disabled = !isMatch; // 완벽한 숨김 처리
+            opts[i].hidden = !isMatch; opts[i].disabled = !isMatch;
         }
     };
 
@@ -200,23 +198,19 @@
         }
 
         let filtered = db.posts.filter(p => {
-            // [보완 2] 검색 시 덱 내부의 영웅 이름까지 포함하여 대소문자 구분 없이 검색
             if(keyword) {
                 const k = keyword.toLowerCase();
                 const matchTitle = (p.title || "").toLowerCase().includes(k);
                 const matchHero = p.picks && p.picks.some(h => (h || "").toLowerCase().includes(k));
                 if(!matchTitle && !matchHero) return false;
             }
-            
             if(curFilter === 'all') return p.isMain === true;
-            
             if(curFilter === 'guild') {
                 if(curSub === 'hero') return p.category === 'hero_reg';
                 if(p.category !== 'deck_reg') return false;
                 if(curSub !== '전체') return p.deckType === curSub;
                 return true;
             }
-
             if(p.category !== curFilter) return false;
             if(curSub !== '전체') return p.subCategory === curSub;
             return true;
@@ -283,7 +277,6 @@
         document.getElementById('deckModal').style.display = 'flex';
     };
 
-    // [보완 3] HTML 파싱 오류 방지를 위한 안전한 모달 오픈 함수 추가
     window.showDeckDetailById = (id) => {
         const targetDeck = db.posts.find(x => x.id === id);
         if(targetDeck) showDeckDetail(targetDeck);
@@ -295,21 +288,27 @@
         mHeroImg.style.borderColor = bc;
         const usage = db.posts.filter(p => p.category === 'deck_reg' && (p.picks||[]).includes(h.title));
         let uHtml = '<p style="font-size:13px; color:var(--gold); margin-bottom:10px; font-weight:bold;">💡 활용 중인 조합</p>';
-        
-        // [보완 4] 덱 제목의 특수문자나 공백이 HTML을 깨뜨리지 않도록 showDeckDetailById 사용
         usage.forEach(u => uHtml += `<div style="background:#000; padding:12px; border-radius:8px; margin-bottom:8px; font-size:13px; border-left:3px solid var(--gold); cursor:pointer;" onclick="closeModal('heroModal'); showDeckDetailById(${u.id})">${u.title}</div>`);
-        
         mUsage.innerHTML = usage.length > 0 ? uHtml : '<p style="text-align:center; color:#555; padding:20px;">조합 정보가 없습니다.</p>';
         document.getElementById('heroModal').style.display = 'flex';
     };
 
+    // [중요] 덱 에디터 열기
     window.openDeckEditor = (id) => {
         const p = db.posts.find(x => x.id === id); if(!p) return;
         editId = id; edTit.value = p.title || ''; edType.value = p.deckType || 'offense'; edMain.checked = p.isMain || false;
         edP1.value = p.picks?.[0] || ''; edP2.value = p.picks?.[1] || ''; edP3.value = p.picks?.[2] || '';
         edSpeed.value = p.speed || ''; edRing.value = p.ring || ''; edPet.value = p.pet || '';
         edSkill.value = p.skill || ''; edForm.value = p.form || ''; edExtra.value = p.extra || '';
-        document.getElementById('deckEditor').style.display = 'flex'; closeModal('deckModal');
+        document.getElementById('deckEditor').style.display = 'flex'; 
+        closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
+    };
+
+    // [업데이트] 덱 에디터 취소 시 확인창 기능
+    window.closeDeckEditor = () => {
+        if(confirm("수정 중인 내용이 저장되지 않습니다. 닫으시겠습니까?")) {
+            document.getElementById('deckEditor').style.display = 'none';
+        }
     };
 
     const saveDeckEdit = async () => {
@@ -344,15 +343,11 @@
     const doUpload = async () => {
         const btn = document.getElementById('upBtn'); 
         if(!titIn.value) return alert("제목을 입력해주세요.");
-        
-        // [보완 5] 빈 파일 혹은 빈 링크 업로드 시 에러 방지 처리
         if(!editId) {
             if ((catIn.value === 'photo' || catIn.value === 'hero_reg') && fileIn.files.length === 0) return alert("이미지 파일을 첨부해주세요.");
             if (catIn.value.includes('video') && !linkIn.value) return alert("유튜브 링크를 입력해주세요.");
         }
-
         btn.innerText = "저장 중..."; btn.disabled = true;
-        
         try {
             let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now() };
             t.category = catIn.value; t.title = titIn.value; t.isMain = mainIn.checked;
@@ -374,7 +369,6 @@
             } else await finishUpload(t);
         } catch (e) {
             alert("서버 오류로 인해 저장이 중단되었습니다.");
-            console.error(e);
             btn.innerText = "💾 저장하기"; btn.disabled = false;
         }
     };
