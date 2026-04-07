@@ -32,13 +32,16 @@
         .card-title { font-size: 14px; color: var(--gold); font-weight: bold; }
         .deck-heroes-preview { display: flex; justify-content: center; gap: 10px; padding: 15px; background: rgba(0,0,0,0.2); }
         .deck-preview-text { padding: 10px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; }
-        .modal-content-box { background: #161c24; width: 95%; max-width: 500px; border-radius: 20px; border: 1px solid var(--gold); overflow: hidden; position: relative; max-height: 90vh; display: flex; flex-direction: column; }
-        .deck-heroes-row { display: flex; justify-content: center; gap: 15px; padding: 25px 10px; background: linear-gradient(to bottom, rgba(212, 175, 55, 0.1), transparent); }
-        .deck-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; overflow-y: auto; }
+        
+        /* [중요] 모달 창 및 상세 정보 정렬 수정 */
+        .modal-content-box { background: #161c24; width: 95%; max-width: 500px; border-radius: 20px; border: 1px solid var(--gold); overflow: hidden; position: relative; max-height: 85vh; display: flex; flex-direction: column; }
+        .deck-heroes-row { display: flex; justify-content: center; gap: 15px; padding: 25px 10px; background: linear-gradient(to bottom, rgba(212, 175, 55, 0.1), transparent); flex-shrink: 0; }
+        .deck-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
         .deck-info-box { background: rgba(0, 0, 0, 0.5); border: 1px solid #333; border-radius: 12px; padding: 14px; }
         .deck-info-box.full { grid-column: span 2; }
         .info-label { color: var(--gold); font-size: 12px; font-weight: bold; margin-bottom: 8px; display: block; }
-        .info-value { color: #fff; font-size: 14px; line-height: 1.6; word-break: keep-all; white-space: pre-wrap; }
+        .info-value { color: #fff; font-size: 14px; line-height: 1.6; word-break: break-all; white-space: pre-wrap; }
+        
         #admin, #deckEditor { display: none; background: #161c24; padding: 15px; border-radius: 15px; border: 1px solid var(--gold); margin-bottom: 25px; }
         input, select, textarea { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; font-size: 16px; outline: none; }
         .btn-gold { background: var(--gold); color: #000; border: none; padding: 16px; border-radius: 10px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; }
@@ -52,10 +55,13 @@
         .border-leg { border-color: var(--gold) !important; }
         .border-rare { border-color: var(--blue) !important; }
         .hero-name { font-size: 12px; margin-top: 8px; color: #fff; text-align: center; }
-        .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; }
+        
+        /* [중요] 버튼 바 하단 고정 유지 */
+        .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; flex-shrink: 0; }
         .edit-btn, .del-btn { padding: 14px; font-size: 14px; flex: 1; border: none; cursor: pointer; font-weight: bold; }
         .edit-btn { background: #1c2b3e; color: #66b2ff; }
         .del-btn { background: #421010; color: #ff8888; border-left: 1px solid #333; }
+        
         .close-circle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; z-index: 10; }
         .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 45px; pointer-events: none; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
         .check-container { display: flex; align-items: center; gap: 10px; margin: 10px 0 20px 5px; color: var(--gold); font-weight: bold; font-size: 15px; cursor: pointer; }
@@ -133,7 +139,17 @@
 </div>
 
 <div id="mediaModal" class="modal" onclick="closeModalOnBg(event, 'mediaModal')"><div class="close-circle" onclick="closeModal('mediaModal')">&times;</div><div id="mediaContainer" style="width:100%; max-width:800px; display:flex; justify-content:center;"></div></div>
-<div id="deckModal" class="modal" onclick="closeModalOnBg(event, 'deckModal')"><div class="modal-content-box"><div class="close-circle" onclick="closeModal('deckModal')">&times;</div><div id="deckModalTitle" style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #333;"></div><div id="deckModalHeroes"></div><div id="deckModalDetails" class="deck-detail-grid"></div></div></div>
+
+<div id="deckModal" class="modal" onclick="closeModalOnBg(event, 'deckModal')">
+    <div class="modal-content-box">
+        <div class="close-circle" onclick="closeModal('deckModal')">&times;</div>
+        <div id="deckModalTitle" style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #333; flex-shrink:0;"></div>
+        <div id="deckModalHeroes"></div>
+        <div id="deckModalDetails" class="deck-detail-grid"></div>
+        <div id="deckAdminBarContainer" class="admin-edit-bar" style="display:none;"></div>
+    </div>
+</div>
+
 <div id="heroModal" class="modal" onclick="closeModalOnBg(event, 'heroModal')"><div class="gate-box" style="max-width:400px; width:92%;"><div class="close-circle" onclick="closeModal('heroModal')">&times;</div><img id="mHeroImg" class="hero-img" style="width:90px; height:90px; margin-bottom:10px;"><h3 id="mHeroName" style="color:var(--gold);"></h3><div id="mUsage" style="max-height:280px; overflow-y:auto; text-align:left; margin-top:15px; border-top:1px solid #333; padding-top:10px;"></div></div></div>
 
 <script>
@@ -274,6 +290,16 @@
         const items = [{l:'⚡ 속공', v:p.speed}, {l:'💍 반지', v:p.ring}, {l:'🐾 펫', v:p.pet}, {l:'📜 스킬 순서', v:p.skill}, {l:'🛡️ 진형', v:p.form}, {l:'📝 특이사항', v:p.extra, f:true}];
         let iHtml = ''; items.forEach(i => { if(i.v) iHtml += `<div class="deck-info-box ${i.f?'full':''}"><span class="info-label">${i.l}</span><div class="info-value">${i.v}</div></div>`; });
         deckModalDetails.innerHTML = iHtml || '<p style="grid-column:span 2; text-align:center; color:#555; padding:20px;">정보가 없습니다.</p>';
+        
+        // 관리자용 하단 바 노출 여부 결정
+        const adminBar = document.getElementById('deckAdminBarContainer');
+        if(isAdmin) {
+            adminBar.style.display = 'flex';
+            adminBar.innerHTML = `<button class="edit-btn" onclick="openDeckEditor(${p.id})">수정</button><button class="del-btn" onclick="deleteItem(${p.id})">삭제</button>`;
+        } else {
+            adminBar.style.display = 'none';
+        }
+        
         document.getElementById('deckModal').style.display = 'flex';
     };
 
@@ -293,7 +319,6 @@
         document.getElementById('heroModal').style.display = 'flex';
     };
 
-    // [중요] 덱 에디터 열기
     window.openDeckEditor = (id) => {
         const p = db.posts.find(x => x.id === id); if(!p) return;
         editId = id; edTit.value = p.title || ''; edType.value = p.deckType || 'offense'; edMain.checked = p.isMain || false;
@@ -304,7 +329,6 @@
         closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
     };
 
-    // [업데이트] 덱 에디터 취소 시 확인창 기능
     window.closeDeckEditor = () => {
         if(confirm("수정 중인 내용이 저장되지 않습니다. 닫으시겠습니까?")) {
             document.getElementById('deckEditor').style.display = 'none';
