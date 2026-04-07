@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GlowingS ARCHIVE</title>
     <style>
-        :root { --gold: #d4af37; --red: #ff4444; --blue: #44aaff; --purple: #ff00ff; --bg: #0a0e14; --card: #1c2b3e; --text: #e0e0e0; }
+        :root { --gold: #d4af37; --red: #ff4444; --blue: #44aaff; --purple: #b044ff; --bg: #0a0e14; --card: #1c2b3e; --text: #e0e0e0; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
         body { background: var(--bg); font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; color: var(--text); height: 100vh; overflow: hidden; font-size: 15px; line-height: 1.5; }
@@ -37,7 +37,7 @@
         .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
         
-        .card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #2d343e; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; }
+        .card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #2d343e; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; }
         .card:active { transform: scale(0.98); }
         .card-header { padding: 15px; text-align: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333; }
         .card-title { font-size: 14px; color: var(--gold); font-weight: bold; }
@@ -64,6 +64,12 @@
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; padding: 15px; }
         .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; }
         .hero-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
+        
+        /* 복구된 영웅 등급 테두리 CSS */
+        .border-old { border-color: var(--purple) !important; }
+        .border-leg { border-color: var(--gold) !important; }
+        .border-rare { border-color: var(--blue) !important; }
+
         .hero-name { font-size: 12px; margin-top: 8px; color: #fff; text-align: center; }
 
         .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; }
@@ -72,6 +78,7 @@
         .del-btn { background: #421010; color: #ff8888; border-left: 1px solid #333; }
         
         .close-circle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; z-index: 10; }
+        .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 45px; pointer-events: none; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
     </style>
 </head>
 <body>
@@ -129,8 +136,14 @@
                 </div>
                 <div id="heroGradeSet" style="display:none;"><select id="gradeIn"><option value="old">🟣 구세나</option><option value="leg">🟡 전설</option><option value="rare">🔵 희귀</option></select></div>
                 <input type="text" id="titIn" placeholder="제목을 입력하세요">
-                <div id="fileArea"><input type="file" id="fileIn" multiple accept="image/*" style="border:none; padding:10px 0;"></div>
+                
+                <div id="fileArea">
+                    <input type="file" id="fileIn" multiple accept="image/*" style="border:none; padding:10px 0;">
+                    <input type="text" id="linkIn" placeholder="유튜브 링크를 붙여넣으세요" style="display:none;">
+                </div>
+
                 <button class="btn-gold" id="upBtn" onclick="doUpload()">💾 데이터 저장하기</button>
+                <button class="btn-gold" onclick="resetAdmin()" style="background:#333; color:#fff; margin-top:10px;">취소 / 초기화</button>
             </div>
 
             <div class="sticky-tabs">
@@ -149,6 +162,11 @@
             <div id="heroes" style="display:none;"></div>
         </div>
     </div>
+</div>
+
+<div id="mediaModal" class="modal" onclick="closeModalOnBg(event, 'mediaModal')">
+    <div class="close-circle" onclick="closeModal('mediaModal')">&times;</div>
+    <div id="mediaContainer" style="width: 100%; max-width: 800px; display: flex; justify-content: center;"></div>
 </div>
 
 <div id="deckModal" class="modal" onclick="closeModalOnBg(event, 'deckModal')">
@@ -193,6 +211,12 @@
     const checkGate = () => { if(document.getElementById('pw').value === 'glowing99') { sessionStorage.setItem('auth', 'true'); location.reload(); } };
     const askAdmin = () => { if(!isAdmin && prompt("ADMIN CODE:") === '1005') { sessionStorage.setItem('admin', 'true'); location.reload(); } };
     
+    // 복구된 유튜브 ID 추출 함수
+    const getYTubeId = (url) => {
+        const m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?]+)/);
+        return m ? m[1] : null;
+    };
+
     const fetchData = async () => {
         try {
             const res = await fetch(`${CONFIG.API}/latest`, { headers: { "X-Master-Key": CONFIG.KEY, "X-Bin-Meta": "false" }, cache: 'no-store' });
@@ -241,15 +265,37 @@
             return p.category === curFilter;
         });
 
+        // 복구된 영웅 등급별 그룹 렌더링
         if(curFilter === 'guild' && curSub === 'hero') {
             heroesEl.style.display = 'block';
-            const grid = document.createElement('div'); grid.className = 'hero-grid';
+            const gradeMap = {
+                'old': { title: '🟣 구세나', color: 'var(--purple)', heroes: [] },
+                'leg': { title: '🟡 전설', color: 'var(--gold)', heroes: [] },
+                'rare': { title: '🔵 희귀', color: 'var(--blue)', heroes: [] }
+            };
+            
             filtered.forEach(h => {
-                const unit = document.createElement('div'); unit.className = 'hero-unit';
-                unit.innerHTML = `<img src="${h.img}" class="hero-img" loading="lazy"><div class="hero-name">${h.title}</div>`;
-                unit.onclick = () => showHeroDetail(h); grid.appendChild(unit);
+                if(gradeMap[h.grade]) gradeMap[h.grade].heroes.push(h);
+                else gradeMap['leg'].heroes.push(h); // 예외처리
             });
-            heroesEl.appendChild(grid);
+
+            ['old', 'leg', 'rare'].forEach(g => {
+                if(gradeMap[g].heroes.length > 0) {
+                    const sec = document.createElement('div');
+                    sec.innerHTML = `<h3 style="color:${gradeMap[g].color}; margin: 25px 0 10px 5px; border-bottom:1px solid #333; padding-bottom:5px;">${gradeMap[g].title}</h3>`;
+                    const grid = document.createElement('div'); grid.className = 'hero-grid';
+                    
+                    gradeMap[g].heroes.forEach(h => {
+                        const unit = document.createElement('div'); unit.className = 'hero-unit';
+                        // 복구된 등급별 테두리 클래스 추가 (border-old, border-leg 등)
+                        unit.innerHTML = `<img src="${h.img}" class="hero-img border-${g}" loading="lazy"><div class="hero-name">${h.title}</div>`;
+                        unit.onclick = () => showHeroDetail(h);
+                        grid.appendChild(unit);
+                    });
+                    sec.appendChild(grid);
+                    heroesEl.appendChild(sec);
+                }
+            });
         } else if(curFilter === 'guild') {
             decksEl.style.display = 'grid'; [...filtered].reverse().forEach(p => decksEl.appendChild(createDeckPreviewCard(p)));
         } else {
@@ -257,11 +303,45 @@
         }
     };
 
+    // 복구된 미디어(유튜브 썸네일/재생 아이콘/클릭 이벤트) 카드 생성 함수
     const createMediaCard = (p) => {
         const div = document.createElement('div'); div.className = 'card';
-        const thumb = (p.links && p.links[0]) ? p.links[0] : "https://via.placeholder.com/400x225/1c2b3e/gold?text=GlowingS";
-        div.innerHTML = `<img src="${thumb}" style="width:100%; aspect-ratio:16/9; object-fit:cover;" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div></div>`;
-        if(isAdmin) div.appendChild(createAdminBar(p.id)); return div;
+        let thumb = "https://via.placeholder.com/400x225/1c2b3e/gold?text=GlowingS";
+        let isVideo = p.category.includes('video');
+        let ytId = null;
+
+        if (isVideo && p.links && p.links[0]) {
+            ytId = getYTubeId(p.links[0]);
+            if (ytId) thumb = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
+        } else if (p.links && p.links[0]) {
+            thumb = p.links[0];
+        }
+
+        div.innerHTML = `<img src="${thumb}" style="width:100%; aspect-ratio:16/9; object-fit:cover;" loading="lazy">
+                         <div class="card-header"><div class="card-title">${p.title}</div></div>`;
+        
+        if (isVideo) {
+            div.innerHTML += `<div class="play-icon">▶️</div>`;
+            div.onclick = (e) => { if(!e.target.classList.contains('edit-btn') && !e.target.classList.contains('del-btn')) openMedia(p.links[0], 'video'); };
+        } else {
+            div.onclick = (e) => { if(!e.target.classList.contains('edit-btn') && !e.target.classList.contains('del-btn')) openMedia(thumb, 'img'); };
+        }
+
+        if(isAdmin) div.appendChild(createAdminBar(p.id, 'media')); 
+        return div;
+    };
+
+    // 복구된 미디어 뷰어(유튜브 iframe 및 사진 확대) 실행 함수
+    const openMedia = (url, type) => {
+        const mc = document.getElementById('mediaContainer');
+        if(type === 'video') {
+            const ytId = getYTubeId(url);
+            if(ytId) mc.innerHTML = `<iframe width="100%" style="aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${ytId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>`;
+            else mc.innerHTML = `<p style="color:var(--red);">유효하지 않은 동영상 링크입니다.</p>`;
+        } else {
+            mc.innerHTML = `<img src="${url}" style="width:100%; border-radius:10px;">`;
+        }
+        document.getElementById('mediaModal').style.display = 'flex';
     };
 
     const createDeckPreviewCard = (p) => {
@@ -269,7 +349,12 @@
         div.onclick = () => showDeckDetail(p);
         const hMap = {}; db.posts.filter(x => x.category === 'hero_reg').forEach(h => hMap[h.title] = h);
         let hHtml = '<div class="deck-heroes-preview">';
-        (p.picks || []).forEach(n => { if(hMap[n]) hHtml += `<img src="${hMap[n].img}" style="width:40px; height:40px; border-radius:50%; border:1px solid var(--gold); object-fit:cover;">`; });
+        (p.picks || []).forEach(n => { 
+            if(hMap[n]) {
+                const bColor = hMap[n].grade === 'old' ? 'var(--purple)' : (hMap[n].grade === 'rare' ? 'var(--blue)' : 'var(--gold)');
+                hHtml += `<img src="${hMap[n].img}" style="width:40px; height:40px; border-radius:50%; border:2px solid ${bColor}; object-fit:cover;">`; 
+            }
+        });
         hHtml += '</div>';
         div.innerHTML = `<div class="card-header"><div class="card-title">${p.title || '전략 덱'}</div></div>${hHtml}<div class="deck-preview-text">상세 보기</div>`;
         return div;
@@ -279,45 +364,41 @@
         const hMap = {}; db.posts.filter(x => x.category === 'hero_reg').forEach(h => hMap[h.title] = h);
         deckModalTitle.innerText = p.title;
         let hHtml = '<div class="deck-heroes-row">';
-        (p.picks || []).forEach(n => { if(hMap[n]) hHtml += `<div style="text-align:center;"><img src="${hMap[n].img}" style="width:60px; height:60px; border-radius:50%; border:2px solid var(--gold); object-fit:cover;"><div style="font-size:11px; margin-top:8px; color:#fff;">${n}</div></div>`; });
+        (p.picks || []).forEach(n => { 
+            if(hMap[n]) {
+                const bColor = hMap[n].grade === 'old' ? 'var(--purple)' : (hMap[n].grade === 'rare' ? 'var(--blue)' : 'var(--gold)');
+                hHtml += `<div style="text-align:center;"><img src="${hMap[n].img}" style="width:60px; height:60px; border-radius:50%; border:2px solid ${bColor}; object-fit:cover;"><div style="font-size:11px; margin-top:8px; color:#fff;">${n}</div></div>`; 
+            }
+        });
         hHtml += '</div>';
         deckModalHeroes.innerHTML = hHtml;
 
-        // 항목별 출력 로직
         const items = [
-            { label: '⚡ 속공', value: p.speed },
-            { label: '💍 반지', value: p.ring },
-            { label: '🐾 펫', value: p.pet },
-            { label: '📜 스킬 순서', value: p.skill },
-            { label: '🛡️ 진형', value: p.form },
-            { label: '📝 장비 및 특이사항', value: p.extra, full: true }
+            { label: '⚡ 속공', value: p.speed }, { label: '💍 반지', value: p.ring },
+            { label: '🐾 펫', value: p.pet }, { label: '📜 스킬 순서', value: p.skill },
+            { label: '🛡️ 진형', value: p.form }, { label: '📝 장비 및 특이사항', value: p.extra, full: true }
         ];
 
         let infoHtml = '';
         items.forEach(item => {
-            if(item.value) {
-                infoHtml += `<div class="deck-info-box ${item.full?'full':''}">
-                    <span class="info-label">${item.label}</span>
-                    <div class="info-value">${item.value}</div>
-                </div>`;
-            }
+            if(item.value) { infoHtml += `<div class="deck-info-box ${item.full?'full':''}"><span class="info-label">${item.label}</span><div class="info-value">${item.value}</div></div>`; }
         });
 
         deckModalDetails.innerHTML = infoHtml || '<p style="grid-column:span 2; text-align:center; color:#555; padding:20px;">정보가 없습니다.</p>';
-        if(isAdmin) {
-            deckModalAdmin.style.display = 'block';
-            deckModalAdmin.innerHTML = createAdminBar(p.id, 'deck').outerHTML;
-        } else { deckModalAdmin.style.display = 'none'; }
+        if(isAdmin) { deckModalAdmin.style.display = 'block'; deckModalAdmin.innerHTML = createAdminBar(p.id, 'deck').outerHTML; } else { deckModalAdmin.style.display = 'none'; }
         document.getElementById('deckModal').style.display = 'flex';
     };
 
     const showHeroDetail = (h) => {
         mHeroImg.src = h.img; mHeroName.innerText = h.title;
+        const bColor = h.grade === 'old' ? 'var(--purple)' : (h.grade === 'rare' ? 'var(--blue)' : 'var(--gold)');
+        mHeroImg.style.borderColor = bColor;
+        
         const usage = db.posts.filter(p => p.category === 'deck_reg' && (p.picks||[]).includes(h.title));
         let uHtml = '<p style="font-size:13px; color:var(--gold); margin-bottom:10px; font-weight:bold;">💡 활용 중인 조합</p>';
-        usage.forEach(u => uHtml += `<div style="background:#000; padding:12px; border-radius:8px; margin-bottom:8px; font-size:13px; border-left:3px solid var(--gold);" onclick="closeModal('heroModal'); showDeckDetail(${JSON.stringify(u).replace(/"/g, '&quot;')})">${u.title}</div>`);
+        usage.forEach(u => uHtml += `<div style="background:#000; padding:12px; border-radius:8px; margin-bottom:8px; font-size:13px; border-left:3px solid var(--gold); cursor:pointer;" onclick="closeModal('heroModal'); showDeckDetail(${JSON.stringify(u).replace(/"/g, '&quot;')})">${u.title}</div>`);
         mUsage.innerHTML = usage.length > 0 ? uHtml : '<p style="text-align:center; color:#555; padding:20px;">조합 정보가 없습니다.</p>';
-        if(isAdmin) mUsage.innerHTML += createAdminBar(h.id).outerHTML;
+        if(isAdmin) mUsage.innerHTML += createAdminBar(h.id, 'media').outerHTML;
         document.getElementById('heroModal').style.display = 'flex';
     };
 
@@ -325,17 +406,10 @@
         const p = db.posts.find(x => x.id === id);
         if(!p) return;
         editId = id;
-        edTit.value = p.title || '';
-        edType.value = p.deckType || 'offense';
-        edP1.value = p.picks?.[0] || '';
-        edP2.value = p.picks?.[1] || '';
-        edP3.value = p.picks?.[2] || '';
-        edSpeed.value = p.speed || '';
-        edRing.value = p.ring || '';
-        edPet.value = p.pet || '';
-        edSkill.value = p.skill || '';
-        edForm.value = p.form || '';
-        edExtra.value = p.extra || '';
+        edTit.value = p.title || ''; edType.value = p.deckType || 'offense';
+        edP1.value = p.picks?.[0] || ''; edP2.value = p.picks?.[1] || ''; edP3.value = p.picks?.[2] || '';
+        edSpeed.value = p.speed || ''; edRing.value = p.ring || ''; edPet.value = p.pet || '';
+        edSkill.value = p.skill || ''; edForm.value = p.form || ''; edExtra.value = p.extra || '';
         
         document.getElementById('deckEditor').style.display = 'flex';
         closeModal('deckModal');
@@ -349,15 +423,10 @@
         btn.innerText = "저장 중..."; btn.disabled = true;
 
         let t = db.posts.find(x => x.id === editId);
-        t.title = edTit.value;
-        t.deckType = edType.value;
+        t.title = edTit.value; t.deckType = edType.value;
         t.picks = [edP1.value, edP2.value, edP3.value].filter(x => x);
-        t.speed = edSpeed.value;
-        t.ring = edRing.value;
-        t.pet = edPet.value;
-        t.skill = edSkill.value;
-        t.form = edForm.value;
-        t.extra = edExtra.value;
+        t.speed = edSpeed.value; t.ring = edRing.value; t.pet = edPet.value;
+        t.skill = edSkill.value; t.form = edForm.value; t.extra = edExtra.value;
 
         await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) });
         location.reload();
@@ -366,14 +435,19 @@
     window.startEdit = (id) => {
         const p = db.posts.find(x => x.id === id);
         if(p.category === 'deck_reg') return openDeckEditor(id);
+        
         editId = id;
         catIn.value = p.category;
         catIn.dispatchEvent(new Event('change'));
+        
         titIn.value = p.title || '';
         if(p.category === 'hero_reg') gradeIn.value = p.grade || 'leg';
+        // 복구된 링크 불러오기
+        if(p.category.includes('video')) linkIn.value = p.links ? p.links[0] : '';
+        
         adminTitle.innerText = "🛠️ 데이터 수정 모드";
         document.getElementById('admin').style.display = 'block';
-        closeModal('deckModal'); closeModal('heroModal');
+        closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
         document.querySelector('.content-scroll').scrollTo(0,0);
     };
 
@@ -385,19 +459,39 @@
         let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now() };
         t.category = catIn.value; t.title = titIn.value; t.isMain = true;
         if(t.category === 'hero_reg') t.grade = gradeIn.value;
-        if(t.category === 'deck_reg') { t.deckType = 'offense'; }
+        if(t.category === 'deck_reg' && !editId) { t.deckType = 'offense'; }
         
-        if(fileIn.files.length > 0) {
-            const fd = new FormData(); fd.append('file', fileIn.files[0]); fd.append('upload_preset', CONFIG.PRESET);
-            const res = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.CLOUD}/image/upload`, { method: 'POST', body: fd });
-            const d = await res.json();
-            if(t.category === 'hero_reg') t.img = d.secure_url; else t.links = [d.secure_url];
+        // 복구된 영상 vs 파일 분기 처리
+        if(t.category === 'video_pve' || t.category === 'video_pvp') {
+            if(!linkIn.value && !editId) { alert("유튜브 링크를 입력해주세요."); resetUploadBtn(btn); return; }
+            if(linkIn.value) t.links = [linkIn.value];
+            await finishUpload(t);
+        } else if (t.category === 'photo' || t.category === 'hero_reg') {
+            if(fileIn.files.length > 0) {
+                try {
+                    const fd = new FormData(); fd.append('file', fileIn.files[0]); fd.append('upload_preset', CONFIG.PRESET);
+                    const res = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.CLOUD}/image/upload`, { method: 'POST', body: fd });
+                    const d = await res.json();
+                    if(t.category === 'hero_reg') t.img = d.secure_url; else t.links = [d.secure_url];
+                    await finishUpload(t);
+                } catch(e) { alert("업로드 실패!"); resetUploadBtn(btn); return; }
+            } else if (editId) {
+                await finishUpload(t); // 이미지 수정 안 할 때
+            } else {
+                alert("파일을 선택해주세요."); resetUploadBtn(btn); return;
+            }
+        } else if (t.category === 'deck_reg') {
+            await finishUpload(t);
         }
-        
+    };
+
+    const finishUpload = async (t) => {
         if(!editId) db.posts.push(t);
         await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) });
         location.reload();
     };
+
+    const resetUploadBtn = (btn) => { btn.innerText = "💾 데이터 저장하기"; btn.disabled = false; };
 
     const deleteItem = async (id) => { if(confirm("정말로 삭제하시겠습니까?")) { db.posts = db.posts.filter(p => p.id !== id); await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) }); render(); closeModal('deckModal'); closeModal('heroModal'); } };
     
@@ -411,14 +505,27 @@
     const goTab = (f, b) => { curFilter = f; curSub = f === 'guild' ? 'offense' : '전체'; document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); render(); };
     const goSub = (s) => { curSub = s; render(); };
     const handleSearch = (e) => { keyword = e.target.value; render(); };
-    const closeModal = (id) => document.getElementById(id).style.display = 'none';
+    const closeModal = (id) => { document.getElementById(id).style.display = 'none'; if(id === 'mediaModal') document.getElementById('mediaContainer').innerHTML = ''; };
     const closeModalOnBg = (e, id) => { if(e.target.id === id) closeModal(id); };
-    const resetAdmin = () => { editId = null; adminTitle.innerText = "📤 자료 등록"; titIn.value = ''; fileIn.value=''; };
+    const resetAdmin = () => { editId = null; adminTitle.innerText = "📤 자료 등록"; titIn.value = ''; fileIn.value=''; linkIn.value=''; catIn.dispatchEvent(new Event('change')); };
 
+    // 복구된 카테고리 전환 시 입력창 스위칭 로직
     catIn.onchange = (e) => {
-        deckUI.style.display = e.target.value === 'deck_reg' ? 'block' : 'none';
-        heroGradeSet.style.display = e.target.value === 'hero_reg' ? 'block' : 'none';
-        fileArea.style.display = e.target.value === 'deck_reg' ? 'none' : 'block';
+        const v = e.target.value;
+        deckUI.style.display = v === 'deck_reg' ? 'block' : 'none';
+        heroGradeSet.style.display = v === 'hero_reg' ? 'block' : 'none';
+        
+        if (v === 'deck_reg') {
+            fileArea.style.display = 'none';
+        } else if (v === 'video_pve' || v === 'video_pvp') {
+            fileArea.style.display = 'block';
+            document.getElementById('fileIn').style.display = 'none';
+            document.getElementById('linkIn').style.display = 'block';
+        } else {
+            fileArea.style.display = 'block';
+            document.getElementById('fileIn').style.display = 'block';
+            document.getElementById('linkIn').style.display = 'none';
+        }
     };
 </script>
 </body>
