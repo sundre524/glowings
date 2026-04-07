@@ -29,10 +29,8 @@
         .tab-btn.active { background: var(--gold) !important; color: #000 !important; }
         
         .sub-tabs { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
-        .sub-btn { flex-shrink: 0; padding: 10px 16px; font-size: 13px; background: #0a0e14; color: #888; border: 1px solid #333; border-radius: 6px; white-space: nowrap; }
-        .sub-btn.active-off { border-color: var(--red); color: var(--red); background: rgba(255, 68, 68, 0.1); }
-        .sub-btn.active-def { border-color: var(--blue); color: var(--blue); background: rgba(68, 170, 255, 0.1); }
-        .sub-btn.active-hero { border-color: var(--gold); color: var(--gold); background: rgba(212, 175, 55, 0.1); }
+        .sub-btn { flex-shrink: 0; padding: 10px 16px; font-size: 13px; background: #0a0e14; color: #888; border: 1px solid #333; border-radius: 6px; white-space: nowrap; font-weight: bold; }
+        .sub-btn.active-sub { border-color: var(--gold); color: var(--gold); background: rgba(212, 175, 55, 0.1); }
 
         .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
@@ -79,7 +77,6 @@
         .close-circle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; z-index: 10; }
         .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 45px; pointer-events: none; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
 
-        /* 체크박스 스타일 */
         .check-container { display: flex; align-items: center; gap: 10px; margin: 10px 0 20px 5px; color: var(--gold); font-weight: bold; font-size: 15px; cursor: pointer; }
         .check-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
     </style>
@@ -93,40 +90,24 @@
     <div class="editor-content">
         <label class="info-label">덱 제목</label>
         <input type="text" id="edTit" placeholder="예: 방덱 뚫기용 공덱">
-        
         <label class="info-label">덱 종류</label>
         <select id="edType"><option value="offense">⚔️ 공격 덱</option><option value="defense">🛡️ 방어 덱</option></select>
-
         <label class="check-container"><input type="checkbox" id="edMain"> 메인 화면(홈)에 표시</label>
-        
         <label class="info-label">영웅 배치 (검색 후 선택)</label>
         <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #333;">
             <div style="margin-bottom:10px;"><input type="text" placeholder="영웅1 검색..." onkeyup="filterHeroSelect(this, 'edP1')" style="margin-bottom:5px;"><select id="edP1"></select></div>
             <div style="margin-bottom:10px;"><input type="text" placeholder="영웅2 검색..." onkeyup="filterHeroSelect(this, 'edP2')" style="margin-bottom:5px;"><select id="edP2"></select></div>
             <div><input type="text" placeholder="영웅3 검색..." onkeyup="filterHeroSelect(this, 'edP3')" style="margin-bottom:5px;"><select id="edP3"></select></div>
         </div>
-        
         <label class="info-label">세부 능력치 및 세팅</label>
         <div style="background:rgba(212,175,55,0.05); padding:15px; border-radius:12px; border:1px solid #444;">
-            <label class="info-label">⚡ 속공</label>
-            <input type="text" id="edSpeed" placeholder="예: 512">
-            
-            <label class="info-label">💍 반지</label>
-            <input type="text" id="edRing" placeholder="예: 불사/권능">
-            
-            <label class="info-label">🐾 펫</label>
-            <input type="text" id="edPet" placeholder="예: 라이언 4성">
-            
-            <label class="info-label">📜 스킬 순서</label>
-            <input type="text" id="edSkill" placeholder="예: 1-3-2">
-            
-            <label class="info-label">🛡️ 진형</label>
-            <input type="text" id="edForm" placeholder="예: 속공 진형 10렙">
-            
-            <label class="info-label">📝 장비 및 특이사항</label>
-            <textarea id="edExtra" style="height: 120px;" placeholder="세부 세팅이나 공략 팁을 입력하세요"></textarea>
+            <label class="info-label">⚡ 속공</label><input type="text" id="edSpeed" placeholder="예: 512">
+            <label class="info-label">💍 반지</label><input type="text" id="edRing" placeholder="예: 불사/권능">
+            <label class="info-label">🐾 펫</label><input type="text" id="edPet" placeholder="예: 라이언 4성">
+            <label class="info-label">📜 스킬 순서</label><input type="text" id="edSkill" placeholder="예: 1-3-2">
+            <label class="info-label">🛡️ 진형</label><input type="text" id="edForm" placeholder="예: 속공 진형 10렙">
+            <label class="info-label">📝 장비 및 특이사항</label><textarea id="edExtra" style="height: 120px;" placeholder="세부 세팅이나 공략 팁을 입력하세요"></textarea>
         </div>
-        
         <button class="btn-gold" id="edSaveBtn" onclick="saveDeckEdit()">✅ 수정 완료 및 저장</button>
         <button class="btn-gold" onclick="closeDeckEditor()" style="background:#333; color:#fff; margin-top:10px;">취소</button>
     </div>
@@ -147,8 +128,14 @@
                     <option value="video_pvp">🎥 PVP 공략</option>
                     <option value="deck_reg">⚔️ 전략 덱 등록</option>
                 </select>
+
+                <div id="subCatUI" style="display:none;">
+                    <label class="info-label">세부 분류 선택</label>
+                    <select id="subCatIn"></select>
+                </div>
+
                 <div id="deckUI" style="display:none; padding:10px; background:rgba(0,0,0,0.2); border-radius:10px; margin-bottom:12px;">
-                    <p style="font-size:13px; color:var(--gold);">* 덱 제목만 적고 등록한 뒤, 리스트에서 '수정'을 눌러 상세 항목을 채워주세요!</p>
+                    <p style="font-size:13px; color:var(--gold);">* 덱 등록 후 수정 버튼으로 상세 항목을 채워주세요!</p>
                 </div>
                 <div id="heroGradeSet" style="display:none;"><select id="gradeIn"><option value="old">🟣 구세나</option><option value="leg">🟡 전설</option><option value="rare">🔵 희귀</option></select></div>
                 
@@ -161,7 +148,7 @@
                 </div>
 
                 <button class="btn-gold" id="upBtn" onclick="doUpload()">💾 데이터 저장하기</button>
-                <button class="btn-gold" onclick="resetAdmin()" style="background:#333; color:#fff; margin-top:10px;">취소 / 초기화</button>
+                <button class="btn-gold" onclick="resetAdmin()" style="background:#333; color:#fff; margin-top:10px;">취소</button>
             </div>
 
             <div class="sticky-tabs">
@@ -193,7 +180,6 @@
         <div id="deckModalTitle" style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #333;"></div>
         <div id="deckModalHeroes"></div>
         <div id="deckModalDetails" class="deck-detail-grid"></div>
-        <div id="deckModalAdmin" style="display:none;"></div>
     </div>
 </div>
 
@@ -228,18 +214,12 @@
 
     const checkGate = () => { if(document.getElementById('pw').value === 'glowing99') { sessionStorage.setItem('auth', 'true'); location.reload(); } };
     const askAdmin = () => { if(!isAdmin && prompt("ADMIN CODE:") === '1005') { sessionStorage.setItem('admin', 'true'); location.reload(); } };
-    
-    const getYTubeId = (url) => {
-        const m = (url||"").match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/))([^&?]+)/);
-        return m ? m[1] : null;
-    };
+    const getYTubeId = (url) => { const m = (url||"").match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/|.*shorts\/))([^&?]+)/); return m ? m[1] : null; };
 
     const fetchData = async () => {
         try {
             const res = await fetch(`${CONFIG.API}/latest`, { headers: { "X-Master-Key": CONFIG.KEY, "X-Bin-Meta": "false" }, cache: 'no-store' });
-            const data = await res.json();
-            db.posts = data.posts || [];
-            updateSelectors(); render();
+            const data = await res.json(); db.posts = data.posts || []; updateSelectors(); render();
         } catch(e) { console.error(e); }
     };
 
@@ -248,14 +228,12 @@
         ['edP1', 'edP2', 'edP3'].forEach(id => {
             const el = document.getElementById(id); if(!el) return;
             let h = '<option value="">선택 안함</option>';
-            heroes.forEach(x => h += `<option value="${x.title}">${x.title}</option>`);
-            el.innerHTML = h;
+            heroes.forEach(x => h += `<option value="${x.title}">${x.title}</option>`); el.innerHTML = h;
         });
     };
 
     const filterHeroSelect = (input, target) => {
-        const val = input.value;
-        const opts = document.getElementById(target).options;
+        const val = input.value; const opts = document.getElementById(target).options;
         for(let i=0; i<opts.length; i++) { opts[i].style.display = opts[i].text.includes(val) ? "block" : "none"; }
     };
 
@@ -263,29 +241,48 @@
         const listEl = document.getElementById('list'), decksEl = document.getElementById('decks'), heroesEl = document.getElementById('heroes');
         listEl.innerHTML = ''; decksEl.innerHTML = ''; heroesEl.innerHTML = '';
         listEl.style.display = 'none'; decksEl.style.display = 'none'; heroesEl.style.display = 'none';
-        document.getElementById('subTabArea').style.display = curFilter === 'guild' ? 'block' : 'none';
+        
+        const hasSub = ['guild', 'video_pve', 'video_pvp'].includes(curFilter);
+        document.getElementById('subTabArea').style.display = hasSub ? 'block' : 'none';
 
-        if(curFilter === 'guild') {
-            document.getElementById('subTabList').innerHTML = `
-                <button class="sub-btn ${curSub==='offense'?'active-off':''}" onclick="goSub('offense')">⚔️ 공격 덱</button>
-                <button class="sub-btn ${curSub==='defense'?'active-def':''}" onclick="goSub('defense')">🛡️ 방어 덱</button>
-                <button class="sub-btn ${curSub==='hero'?'active-hero':''}" onclick="goSub('hero')">👤 영웅 도감</button>`;
+        if(hasSub) {
+            let subHtml = `<button class="sub-btn ${curSub==='전체'?'active-sub':''}" onclick="goSub('전체')">전체</button>`;
+            if(curFilter === 'guild') {
+                subHtml += `<button class="sub-btn ${curSub==='offense'?'active-sub':''}" onclick="goSub('offense')">⚔️ 공격 덱</button>
+                            <button class="sub-btn ${curSub==='defense'?'active-sub':''}" onclick="goSub('defense')">🛡️ 방어 덱</button>
+                            <button class="sub-btn ${curSub==='hero'?'active-sub':''}" onclick="goSub('hero')">👤 영웅 도감</button>`;
+            } else if(curFilter === 'video_pve') {
+                const pveItems = ['공성전', '강림', '레이드', '돌발레이드', '무한의탑', '시련의탑', '모험'];
+                const icons = ['🏰', '🔥', '🐉', '⚡', '🗼', '⚔️', '🗺️'];
+                pveItems.forEach((item, idx) => {
+                    subHtml += `<button class="sub-btn ${curSub===item?'active-sub':''}" onclick="goSub('${item}')">${icons[idx]} ${item}</button>`;
+                });
+            } else if(curFilter === 'video_pvp') {
+                const pvpItems = ['결투장', '상급 결투장', '실시간 결투장'];
+                const icons = ['🏟️', '🏆', '⚡'];
+                pvpItems.forEach((item, idx) => {
+                    subHtml += `<button class="sub-btn ${curSub===item?'active-sub':''}" onclick="goSub('${item}')">${icons[idx]} ${item}</button>`;
+                });
+            }
+            document.getElementById('subTabList').innerHTML = subHtml;
         }
 
         let filtered = db.posts.filter(p => {
             if(keyword && !(p.title||"").includes(keyword)) return false;
             if(curFilter === 'all') return p.isMain === true;
-            if(curFilter === 'guild') {
-                if(curSub === 'hero') return p.category === 'hero_reg';
-                return p.category === 'deck_reg' && p.deckType === curSub;
+            if(p.category !== curFilter) return false;
+            if(curSub !== '전체') {
+                if(curFilter === 'guild') return p.deckType === curSub;
+                return p.subCategory === curSub;
             }
-            return p.category === curFilter;
+            return true;
         });
 
         if(curFilter === 'guild' && curSub === 'hero') {
+            const hData = db.posts.filter(p => p.category === 'hero_reg' && (keyword ? p.title.includes(keyword) : true));
             heroesEl.style.display = 'block';
             const gradeMap = { 'old': { title: '🟣 구세나', color: 'var(--purple)', heroes: [] }, 'leg': { title: '🟡 전설', color: 'var(--gold)', heroes: [] }, 'rare': { title: '🔵 희귀', color: 'var(--blue)', heroes: [] } };
-            filtered.forEach(h => { if(gradeMap[h.grade]) gradeMap[h.grade].heroes.push(h); else gradeMap['leg'].heroes.push(h); });
+            hData.forEach(h => { if(gradeMap[h.grade]) gradeMap[h.grade].heroes.push(h); else gradeMap['leg'].heroes.push(h); });
             ['old', 'leg', 'rare'].forEach(g => {
                 if(gradeMap[g].heroes.length > 0) {
                     const sec = document.createElement('div');
@@ -299,11 +296,10 @@
                     sec.appendChild(grid); heroesEl.appendChild(sec);
                 }
             });
-        } else if(curFilter === 'guild') {
+        } else if(curFilter === 'guild' && curSub !== 'hero') {
             decksEl.style.display = 'grid'; [...filtered].reverse().forEach(p => decksEl.appendChild(createDeckPreviewCard(p)));
         } else {
             listEl.style.display = 'grid'; 
-            // 홈 화면(all)일 경우 덱도 표시할 수 있도록 통합 처리
             [...filtered].reverse().forEach(p => {
                 if(p.category === 'deck_reg') listEl.appendChild(createDeckPreviewCard(p));
                 else listEl.appendChild(createMediaCard(p));
@@ -314,20 +310,17 @@
     const createMediaCard = (p) => {
         const div = document.createElement('div'); div.className = 'card';
         let thumb = "https://via.placeholder.com/400x225/1c2b3e/gold?text=GlowingS";
-        let isVideo = p.category.includes('video');
-        let ytId = getYTubeId(p.links?.[0]);
+        let isVideo = p.category.includes('video'), ytId = getYTubeId(p.links?.[0]);
         if (isVideo && ytId) thumb = `https://img.youtube.com/vi/${ytId}/hqdefault.jpg`;
         else if (p.links && p.links[0]) thumb = p.links[0];
-
-        div.innerHTML = `<img src="${thumb}" style="width:100%; aspect-ratio:16/9; object-fit:cover;" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div></div>`;
+        div.innerHTML = `<img src="${thumb}" style="width:100%; aspect-ratio:16/9; object-fit:cover;" loading="lazy">
+                         <div class="card-header"><div class="card-title">${p.title}</div>
+                         ${p.subCategory ? `<div style="font-size:11px; color:#888; margin-top:5px;">[${p.subCategory}]</div>` : ''}</div>`;
         if (isVideo) {
             div.innerHTML += `<div class="play-icon">▶️</div>`;
             div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(p.links[0], 'video'); };
-        } else {
-            div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(thumb, 'img'); };
-        }
-        if(isAdmin) div.appendChild(createAdminBar(p.id, 'media')); 
-        return div;
+        } else div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(thumb, 'img'); };
+        if(isAdmin) div.appendChild(createAdminBar(p.id, 'media')); return div;
     };
 
     const openMedia = (url, type) => {
@@ -352,8 +345,7 @@
         });
         hHtml += '</div>';
         div.innerHTML = `<div class="card-header"><div class="card-title">${p.title || '전략 덱'}</div></div>${hHtml}<div class="deck-preview-text">상세 보기</div>`;
-        if(isAdmin) div.appendChild(createAdminBar(p.id, 'deck'));
-        return div;
+        if(isAdmin) div.appendChild(createAdminBar(p.id, 'deck')); return div;
     };
 
     const showDeckDetail = (p) => {
@@ -366,11 +358,9 @@
                 hHtml += `<div style="text-align:center;"><img src="${hMap[n].img}" style="width:60px; height:60px; border-radius:50%; border:2px solid ${bColor}; object-fit:cover;"><div style="font-size:11px; margin-top:8px; color:#fff;">${n}</div></div>`; 
             }
         });
-        hHtml += '</div>';
-        deckModalHeroes.innerHTML = hHtml;
-        const items = [ { label: '⚡ 속공', value: p.speed }, { label: '💍 반지', value: p.ring }, { label: '🐾 펫', value: p.pet }, { label: '📜 스킬 순서', value: p.skill }, { label: '🛡️ 진형', value: p.form }, { label: '📝 장비 및 특이사항', value: p.extra, full: true } ];
-        let infoHtml = '';
-        items.forEach(item => { if(item.value) infoHtml += `<div class="deck-info-box ${item.full?'full':''}"><span class="info-label">${item.label}</span><div class="info-value">${item.value}</div></div>`; });
+        hHtml += '</div>'; deckModalHeroes.innerHTML = hHtml;
+        const items = [ { label: '⚡ 속공', value: p.speed }, { label: '💍 반지', value: p.ring }, { label: '🐾 펫', value: p.pet }, { label: '📜 스킬 순서', value: p.skill }, { label: '🛡️ 진형', value: p.form }, { label: '📝 특이사항', value: p.extra, full: true } ];
+        let infoHtml = ''; items.forEach(item => { if(item.value) infoHtml += `<div class="deck-info-box ${item.full?'full':''}"><span class="info-label">${item.label}</span><div class="info-value">${item.value}</div></div>`; });
         deckModalDetails.innerHTML = infoHtml || '<p style="grid-column:span 2; text-align:center; color:#555; padding:20px;">정보가 없습니다.</p>';
         document.getElementById('deckModal').style.display = 'flex';
     };
@@ -387,23 +377,18 @@
     };
 
     window.openDeckEditor = (id) => {
-        const p = db.posts.find(x => x.id === id);
-        if(!p) return;
-        editId = id;
-        edTit.value = p.title || ''; edType.value = p.deckType || 'offense';
-        edMain.checked = p.isMain || false;
+        const p = db.posts.find(x => x.id === id); if(!p) return;
+        editId = id; edTit.value = p.title || ''; edType.value = p.deckType || 'offense'; edMain.checked = p.isMain || false;
         edP1.value = p.picks?.[0] || ''; edP2.value = p.picks?.[1] || ''; edP3.value = p.picks?.[2] || '';
         edSpeed.value = p.speed || ''; edRing.value = p.ring || ''; edPet.value = p.pet || '';
         edSkill.value = p.skill || ''; edForm.value = p.form || ''; edExtra.value = p.extra || '';
-        document.getElementById('deckEditor').style.display = 'flex';
-        closeModal('deckModal');
+        document.getElementById('deckEditor').style.display = 'flex'; closeModal('deckModal');
     };
 
     const closeDeckEditor = () => { editId = null; document.getElementById('deckEditor').style.display = 'none'; };
 
     const saveDeckEdit = async () => {
-        const btn = document.getElementById('edSaveBtn');
-        if(!edTit.value) return alert("제목을 입력해주세요.");
+        const btn = document.getElementById('edSaveBtn'); if(!edTit.value) return alert("제목을 입력해주세요.");
         btn.innerText = "저장 중..."; btn.disabled = true;
         let t = db.posts.find(x => x.id === editId);
         t.title = edTit.value; t.deckType = edType.value; t.isMain = edMain.checked;
@@ -415,10 +400,10 @@
     };
 
     window.startEdit = (id) => {
-        const p = db.posts.find(x => x.id === id);
-        if(p.category === 'deck_reg') return openDeckEditor(id);
+        const p = db.posts.find(x => x.id === id); if(p.category === 'deck_reg') return openDeckEditor(id);
         editId = id; catIn.value = p.category; catIn.dispatchEvent(new Event('change'));
         titIn.value = p.title || ''; mainIn.checked = p.isMain || false;
+        if(p.subCategory) subCatIn.value = p.subCategory;
         if(p.category === 'hero_reg') gradeIn.value = p.grade || 'leg';
         if(p.category.includes('video')) linkIn.value = p.links ? p.links[0] : '';
         adminTitle.innerText = "🛠️ 데이터 수정 모드";
@@ -428,11 +413,11 @@
     };
 
     const doUpload = async () => {
-        const btn = document.getElementById('upBtn'); 
-        if(!titIn.value) return alert("제목을 입력해주세요.");
+        const btn = document.getElementById('upBtn'); if(!titIn.value) return alert("제목을 입력해주세요.");
         btn.innerText = "저장 중..."; btn.disabled = true;
         let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now() };
         t.category = catIn.value; t.title = titIn.value; t.isMain = mainIn.checked;
+        if(t.category.startsWith('video')) t.subCategory = subCatIn.value;
         if(t.category === 'hero_reg') t.grade = gradeIn.value;
         if(t.category === 'deck_reg' && !editId) t.deckType = 'offense';
         
@@ -456,8 +441,7 @@
         location.reload();
     };
 
-    const deleteItem = async (id) => { if(confirm("정말로 삭제하시겠습니까?")) { db.posts = db.posts.filter(p => p.id !== id); await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) }); render(); closeModal('deckModal'); closeModal('heroModal'); } };
-    
+    const deleteItem = async (id) => { if(confirm("정말로 삭제하시겠습니까?")) { db.posts = db.posts.filter(p => p.id !== id); await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) }); render(); } };
     const createAdminBar = (id, type) => {
         const bar = document.createElement('div'); bar.className = 'admin-edit-bar';
         const editFunc = type === 'deck' ? `openDeckEditor(${id})` : `startEdit(${id})`;
@@ -465,7 +449,7 @@
         return bar;
     };
 
-    const goTab = (f, b) => { curFilter = f; curSub = f === 'guild' ? 'offense' : '전체'; document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); render(); };
+    const goTab = (f, b) => { curFilter = f; curSub = '전체'; document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); render(); };
     const goSub = (s) => { curSub = s; render(); };
     const handleSearch = (e) => { keyword = e.target.value; render(); };
     const closeModal = (id) => { document.getElementById(id).style.display = 'none'; if(id === 'mediaModal') document.getElementById('mediaContainer').innerHTML = ''; };
@@ -476,6 +460,14 @@
         const v = e.target.value;
         deckUI.style.display = v === 'deck_reg' ? 'block' : 'none';
         heroGradeSet.style.display = v === 'hero_reg' ? 'block' : 'none';
+        if(v === 'video_pve') {
+            subCatUI.style.display = 'block';
+            subCatIn.innerHTML = '<option value="공성전">🏰 공성전</option><option value="강림">🔥 강림</option><option value="레이드">🐉 레이드</option><option value="돌발레이드">⚡ 돌발레이드</option><option value="무한의탑">🗼 무한의탑</option><option value="시련의탑">⚔️ 시련의탑</option><option value="모험">🗺️ 모험</option>';
+        } else if(v === 'video_pvp') {
+            subCatUI.style.display = 'block';
+            subCatIn.innerHTML = '<option value="결투장">🏟️ 결투장</option><option value="상급 결투장">🏆 상급 결투장</option><option value="실시간 결투장">⚡ 실시간 결투장</option>';
+        } else subCatUI.style.display = 'none';
+
         if (v === 'deck_reg') fileArea.style.display = 'none';
         else if (v.includes('video')) { fileArea.style.display = 'block'; fileIn.style.display = 'none'; linkIn.style.display = 'block'; }
         else { fileArea.style.display = 'block'; fileIn.style.display = 'block'; linkIn.style.display = 'none'; }
