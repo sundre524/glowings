@@ -9,9 +9,8 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; color: var(--text); height: 100vh; overflow: hidden; font-size: 15px; }
         
-        /* 게이트키퍼 */
         #gatekeeper { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .gate-box { text-align: center; padding: 30px; border: 1px solid var(--gold); border-radius: 20px; width: 88%; max-width: 350px; background: #161c24; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .gate-box { text-align: center; padding: 30px; border: 1px solid var(--gold); border-radius: 20px; width: 88%; max-width: 350px; background: #161c24; }
         
         #main { display: none; flex-direction: column; height: 100vh; }
         header { background: #161c24; padding: 18px; text-align: center; border-bottom: 2px solid var(--gold); flex-shrink: 0; cursor: pointer; }
@@ -28,47 +27,50 @@
         .tab-btn { background: #1c2b3e; color: #888; border: none; padding: 12px 5px; border-radius: 8px; font-size: 13px; cursor: pointer; flex: 1; font-weight: bold; }
         .tab-btn.active { background: var(--gold) !important; color: #000 !important; }
         
-        .sub-tabs { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
+        .sub-tabs { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 5px; }
         .sub-btn { flex-shrink: 0; padding: 10px 16px; font-size: 13px; background: #0a0e14; color: #888; border: 1px solid #333; border-radius: 6px; white-space: nowrap; font-weight: bold; }
         .sub-btn.active-sub { border-color: var(--gold); color: var(--gold); background: rgba(212, 175, 55, 0.1); }
         
-        /* 카드 레이아웃 전면 수정 (2번 문제 해결) */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; align-items: start; }
+        /* 카드 이미지 규격 수정 (2번 문제 해결) */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         @media (min-width: 768px) { .grid { grid-template-columns: repeat(3, 1fr); } }
         
-        .card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #2d343e; display: flex; flex-direction: column; position: relative; cursor: pointer; height: auto; min-height: 200px; }
-        .card .thumb-img { width: 100%; aspect-ratio: 1/1; object-fit: cover; background: #000; flex-shrink: 0; }
-        .card-header { padding: 15px; background: rgba(0,0,0,0.2); flex-grow: 1; display: flex; flex-direction: column; }
-        .card-title { font-size: 13px; color: var(--gold); font-weight: bold; white-space: pre-wrap; word-break: break-all; line-height: 1.4; margin-bottom: 10px; }
-        .card-tag { font-size: 11px; color: #888; text-align: center; margin-top: auto; padding: 5px 0; border-top: 1px solid rgba(255,255,255,0.05); }
+        .card { background: var(--card); border-radius: 12px; overflow: hidden; border: 1px solid #2d343e; display: flex; flex-direction: column; position: relative; cursor: pointer; }
+        .card .thumb-box { width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background: #000; flex-shrink: 0; }
+        .card .thumb-box img { width: 100%; height: 100%; object-fit: cover; } /* 규격에 맞게 꽉 채움 */
+        
+        .card-body { padding: 12px; display: flex; flex-direction: column; gap: 8px; flex-grow: 1; }
+        .card-title { font-size: 14px; color: var(--gold); font-weight: bold; white-space: pre-wrap; line-height: 1.4; word-break: break-all; }
+        .card-tag { font-size: 11px; color: #888; }
 
-        /* 영웅 도감 정렬 수정 (1번 문제 해결) */
-        .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 15px; justify-items: center; }
-        .hero-unit { display: flex; flex-direction: column; align-items: center; width: 80px; text-align: center; }
-        .hero-img { width: 65px; height: 65px; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
+        /* 영웅 도감 중앙 정렬 (1번 문제 해결) */
+        .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 15px; justify-items: center; }
+        .hero-unit { display: flex; flex-direction: column; align-items: center; width: 85px; text-align: center; }
+        .hero-img { width: 68px; height: 68px; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
         .hero-name { font-size: 12px; margin-top: 8px; color: #fff; width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
         .border-old { border-color: var(--purple) !important; }
         .border-leg { border-color: var(--gold) !important; }
         .border-rare { border-color: var(--blue) !important; }
 
-        /* 모달 및 슬라이더 (3번 문제 복구 유지) */
+        /* 모달 및 슬라이더 (3번 문제 해결) */
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 10000; align-items: center; justify-content: center; }
         #mediaContainer { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; position: relative; }
-        #mediaContainer img { max-width: 100%; max-height: 80vh; object-fit: contain; }
-        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: #fff; border: none; padding: 25px 15px; font-size: 24px; cursor: pointer; z-index: 10001; }
+        #mediaContainer img { max-width: 100%; max-height: 85vh; object-fit: contain; }
+        
+        .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.4); color: #fff; border: none; padding: 25px 15px; font-size: 24px; cursor: pointer; z-index: 10001; }
         .prev-btn { left: 0; border-radius: 0 10px 10px 0; }
         .next-btn { right: 0; border-radius: 10px 0 0 10px; }
-        .img-counter { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); padding: 5px 15px; border-radius: 20px; font-size: 14px; color: var(--gold); }
+        .img-counter { position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.6); padding: 6px 16px; border-radius: 20px; font-size: 14px; color: var(--gold); pointer-events: none; }
 
-        /* 관리자 도구 버튼 가독성 및 배치 */
-        .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; flex-shrink: 0; }
-        .edit-btn, .del-btn { padding: 12px; font-size: 13px; flex: 1; border: none; cursor: pointer; font-weight: bold; }
+        /* 관리자 바 */
+        .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; margin-top: auto; }
+        .edit-btn, .del-btn { padding: 12px; font-size: 12px; flex: 1; border: none; cursor: pointer; font-weight: bold; }
         .edit-btn { background: #1c2b3e; color: #66b2ff; }
-        .del-btn { background: #421010; color: #ff8888; border-left: 1px solid #222; }
+        .del-btn { background: #421010; color: #ff8888; }
         
         #deckEditor { position: fixed; inset: 0; z-index: 11000; background: var(--bg); display: none; flex-direction: column; overflow-y: auto; }
-        .close-circle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; z-index: 10; }
+        .close-circle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); width: 36px; height: 36px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 10; }
         
         .btn-gold { background: var(--gold); color: #000; border: none; padding: 16px; border-radius: 10px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; }
         input, select, textarea { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; font-size: 16px; outline: none; }
@@ -78,26 +80,10 @@
 
 <div id="gatekeeper"><div class="gate-box"><h2 style="color:var(--gold); margin-bottom:20px;">🛡️ GlowingS</h2><input type="password" id="pw" placeholder="ACCESS CODE" style="width:100%; padding:15px; border-radius:10px; margin-bottom:15px; border:none; text-align:center; font-size:18px; background:#000; color:var(--gold);"><button class="btn-gold" onclick="checkGate()">ACCESS ENTER</button></div></div>
 
-<div id="deckEditor">
-    <header><h2 style="color:var(--gold);">⚔️ 전략 덱 상세 수정</h2></header>
-    <div style="padding:20px; max-width:600px; margin:0 auto; width:100%;">
-        <textarea id="edTit" placeholder="덱 설명/제목" style="height:120px;"></textarea>
-        <select id="edType"><option value="offense">⚔️ 공격 덱</option><option value="defense">🛡️ 방어 덱</option></select>
-        <div style="margin-bottom:15px; color:var(--gold); font-weight:bold;"><input type="checkbox" id="edMain" style="width:18px; height:18px; vertical-align:middle; margin-right:8px;"> 메인 홈 노출</div>
-        <label style="color:var(--gold); font-size:12px; font-weight:bold;">영웅 배치 (선택)</label>
-        <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:12px; margin:10px 0 20px;">
-            <select id="edP1" style="margin-bottom:8px;"></select>
-            <select id="edP2" style="margin-bottom:8px;"></select>
-            <select id="edP3"></select>
-        </div>
-        <button class="btn-gold" onclick="saveDeckEdit()">✅ 저장</button>
-        <button class="btn-gold" onclick="closeDeckEditor()" style="background:#333; color:#fff; margin-top:10px;">취소</button>
-    </div>
-</div>
-
 <div id="main">
     <header onclick="askAdmin()"><h1>🛡️ GlowingS ARCHIVE</h1></header>
-    <div class="search-container"><input type="text" id="mainSearch" class="search-box" placeholder="공략, 영웅, 덱 검색..." onkeyup="handleSearch(event)"></div>
+    <div class="search-container"><input type="text" id="mainSearch" class="search-box" placeholder="검색어를 입력하세요..." onkeyup="handleSearch(event)"></div>
+    
     <div class="content-scroll">
         <div class="container">
             <div id="admin" style="display:none; background:#161c24; padding:15px; border-radius:15px; border:1px solid var(--gold); margin-bottom:20px;">
@@ -109,8 +95,8 @@
                     <option value="video_pvp">🎥 PVP 공략</option>
                     <option value="deck_reg">⚔️ 전략 덱 등록</option>
                 </select>
-                <textarea id="titIn" placeholder="제목 또는 상세 설명" style="height:80px;"></textarea>
-                <div id="fileArea"><input type="file" id="fileIn" multiple accept="image/*"><input type="text" id="linkIn" placeholder="유튜브 링크" style="display:none;"></div>
+                <textarea id="titIn" placeholder="내용 또는 제목을 입력하세요" style="height:80px;"></textarea>
+                <div id="fileArea"><input type="file" id="fileIn" multiple accept="image/*"></div>
                 <button class="btn-gold" id="upBtn" onclick="doUpload()">💾 저장하기</button>
                 <button class="btn-gold" onclick="resetAdmin()" style="background:#333; color:#fff; margin-top:10px;">취소</button>
             </div>
@@ -136,14 +122,14 @@
 <div id="mediaModal" class="modal">
     <div class="close-circle" onclick="closeModal('mediaModal')">&times;</div>
     <div id="mediaContainer"></div>
-    <button class="nav-btn prev-btn" onclick="changeImg(-1)">&#10094;</button>
-    <button class="nav-btn next-btn" onclick="changeImg(1)">&#10095;</button>
+    <button class="nav-btn prev-btn" id="prevBtn" onclick="changeImg(-1)">&#10094;</button>
+    <button class="nav-btn next-btn" id="nextBtn" onclick="changeImg(1)">&#10095;</button>
     <div class="img-counter" id="imgCount"></div>
 </div>
 
 <script>
     const CONFIG = { API: "https://api.jsonbin.io/v3/b/69ae6f09d0ea881f40ff0f44", KEY: "$2a$10$hcOVgg3LvdoRgRZdayPtVOA3gbxyOY7UibDbi/jcJnMlPiok/xlcO", CLOUD: "djef3ylqf", PRESET: "guild_preset" };
-    let db = { posts: [] }, isAdmin = false, curFilter = 'all', curSub = '전체', keyword = "", editId = null;
+    let db = { posts: [] }, isAdmin = false, curFilter = 'all', keyword = "";
     let curImgIdx = 0, curImgList = [];
 
     window.onload = () => {
@@ -157,100 +143,69 @@
 
     const checkGate = () => { if(document.getElementById('pw').value === 'glowing99') { sessionStorage.setItem('auth', 'true'); location.reload(); } };
     const askAdmin = () => { if(!isAdmin && prompt("ADMIN CODE:") === '1005') { sessionStorage.setItem('admin', 'true'); location.reload(); } };
-    const getYTubeId = (url) => { const m = (url||"").match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/|.*shorts\/))([^&?]+)/); return m ? m[1] : null; };
 
     const fetchData = async () => {
         try {
             const res = await fetch(`${CONFIG.API}/latest`, { headers: { "X-Master-Key": CONFIG.KEY, "X-Bin-Meta": "false" } });
-            const data = await res.json(); db.posts = data.posts || []; updateHeroSelectors(); render();
+            const data = await res.json(); db.posts = data.posts || []; render();
         } catch(e) { console.error(e); }
     };
 
-    const updateHeroSelectors = () => {
-        const h = db.posts.filter(p => p.category === 'hero_reg').sort((a,b) => a.title.localeCompare(b.title));
-        ['edP1', 'edP2', 'edP3'].forEach(id => {
-            let o = '<option value="">영웅 선택</option>';
-            h.forEach(x => o += `<option value="${x.title}">${x.title}</option>`);
-            document.getElementById(id).innerHTML = o;
-        });
-    };
-
     const render = () => {
-        const listEl = document.getElementById('list'), decksEl = document.getElementById('decks'), heroesEl = document.getElementById('heroes');
-        listEl.innerHTML = ''; decksEl.innerHTML = ''; heroesEl.innerHTML = '';
-        listEl.style.display = 'none'; decksEl.style.display = 'none'; heroesEl.style.display = 'none';
-
-        const hasSub = ['guild', 'video_pve', 'video_pvp'].includes(curFilter);
-        document.getElementById('subTabArea').style.display = hasSub ? 'block' : 'none';
+        const listEl = document.getElementById('list');
+        listEl.innerHTML = '';
+        listEl.style.display = 'grid';
 
         let filtered = db.posts.filter(p => {
             if(keyword && !p.title?.toLowerCase().includes(keyword.toLowerCase())) return false;
             if(curFilter === 'all') return p.isMain;
-            if(curFilter === 'guild') {
-                if(curSub === 'hero') return p.category === 'hero_reg';
-                return p.category === 'deck_reg' && (curSub === '전체' || p.deckType === curSub);
-            }
-            return p.category === curFilter && (curSub === '전체' || p.subCategory === curSub);
+            return p.category === curFilter;
         });
 
-        if(curFilter === 'guild' && curSub === 'hero') {
-            heroesEl.style.display = 'block';
-            const gm = { 'old': [], 'leg': [], 'rare': [] };
-            filtered.forEach(h => gm[h.grade||'leg'].push(h));
-            Object.entries(gm).forEach(([k, arr]) => {
-                if(arr.length === 0) return;
-                const sec = document.createElement('div');
-                sec.innerHTML = `<h3 style="color:var(--${k==='old'?'purple':k==='rare'?'blue':'gold'}); margin:25px 0 10px 5px;">${k==='old'?'구세나':k==='leg'?'전설':'희귀'}</h3><div class="hero-grid" id="g-${k}"></div>`;
-                heroesEl.appendChild(sec);
-                arr.forEach(h => {
-                    const u = document.createElement('div'); u.className = 'hero-unit';
-                    u.innerHTML = `<img src="${h.img}" class="hero-img border-${k}"><div class="hero-name">${h.title}</div>`;
-                    u.onclick = () => openMedia(h.img, 'img');
-                    document.getElementById(`g-${k}`).appendChild(u);
-                });
-            });
-        } else {
-            const targetEl = (curFilter === 'guild' || (curFilter==='all' && filtered.some(x=>x.category==='deck_reg'))) ? decksEl : listEl;
-            targetEl.style.display = 'grid';
-            filtered.reverse().forEach(p => {
-                const div = document.createElement('div'); div.className = 'card';
-                const isDeck = p.category === 'deck_reg';
-                const thumb = isDeck ? "" : (p.category.includes('video') ? `https://img.youtube.com/vi/${getYTubeId(p.links[0])}/mqdefault.jpg` : p.links[0]);
-                
-                let html = thumb ? `<img src="${thumb}" class="thumb-img">` : '';
-                html += `<div class="card-header"><div class="card-title">${p.title}</div>`;
-                if(p.subCategory || p.deckType) html += `<div class="card-tag">${p.deckType === 'offense' ? '⚔️ 공격 덱' : (p.deckType === 'defense' ? '🛡️ 방어 덱' : p.subCategory)}</div>`;
-                html += `</div>`;
-                div.innerHTML = html;
-                
-                div.onclick = () => isDeck ? openDeckEditor(p.id) : openMedia(p.links, p.category.includes('video') ? 'video' : 'img');
-                if(isAdmin) div.appendChild(createAdminBar(p.id, isDeck));
-                targetEl.appendChild(div);
-            });
-        }
+        filtered.reverse().forEach(p => {
+            const div = document.createElement('div'); div.className = 'card';
+            const isVideo = p.category.includes('video');
+            const thumb = isVideo ? `https://img.youtube.com/vi/${getYTubeId(p.links[0])}/mqdefault.jpg` : (p.links ? p.links[0] : "");
+
+            div.innerHTML = `
+                <div class="thumb-box">${thumb ? `<img src="${thumb}">` : ''}</div>
+                <div class="card-body">
+                    <div class="card-title">${p.title}</div>
+                    <div class="card-tag">${p.category}</div>
+                </div>
+            `;
+            
+            div.onclick = () => openMedia(p.links, isVideo ? 'video' : 'img');
+            if(isAdmin) div.appendChild(createAdminBar(p.id));
+            listEl.appendChild(div);
+        });
     };
+
+    const getYTubeId = (url) => { const m = (url||"").match(/(?:youtu\.be\/|youtube\.com\/(?:.*v=|.*\/|.*embed\/|.*shorts\/))([^&?]+)/); return m ? m[1] : null; };
 
     const openMedia = (links, type) => {
         curImgList = Array.isArray(links) ? links : [links];
         curImgIdx = 0;
-        const modal = document.getElementById('mediaModal');
         updateSliderContent(type);
-        modal.style.display = 'flex';
+        document.getElementById('mediaModal').style.display = 'flex';
     };
 
     const updateSliderContent = (type) => {
         const container = document.getElementById('mediaContainer');
-        const url = curImgList[curImgIdx];
+        const countEl = document.getElementById('imgCount');
         const isMulti = curImgList.length > 1;
-        document.querySelectorAll('.nav-btn').forEach(b => b.style.display = isMulti && type==='img' ? 'block' : 'none');
-        
+
+        document.getElementById('prevBtn').style.display = (isMulti && type === 'img') ? 'block' : 'none';
+        document.getElementById('nextBtn').style.display = (isMulti && type === 'img') ? 'block' : 'none';
+
         if(type === 'video') {
-            const yId = getYTubeId(url);
-            container.innerHTML = `<iframe width="95%" style="aspect-ratio:16/9; border:none;" src="https://www.youtube.com/embed/${yId}?autoplay=1" allowfullscreen></iframe>`;
+            const yId = getYTubeId(curImgList[0]);
+            container.innerHTML = `<iframe width="95%" style="aspect-ratio:16/9;" src="https://www.youtube.com/embed/${yId}?autoplay=1" frameborder="0" allowfullscreen></iframe>`;
+            countEl.style.display = 'none';
         } else {
-            container.innerHTML = `<img src="${url}">`;
-            document.getElementById('imgCount').innerText = `${curImgIdx + 1} / ${curImgList.length}`;
-            document.getElementById('imgCount').style.display = isMulti ? 'block' : 'none';
+            container.innerHTML = `<img src="${curImgList[curImgIdx]}">`;
+            countEl.innerText = `${curImgIdx + 1} / ${curImgList.length}`;
+            countEl.style.display = isMulti ? 'block' : 'none';
         }
     };
 
@@ -259,62 +214,15 @@
         updateSliderContent('img');
     };
 
-    const createAdminBar = (id, isDeck) => {
+    const createAdminBar = (id) => {
         const bar = document.createElement('div'); bar.className = 'admin-edit-bar';
-        bar.innerHTML = `<button class="edit-btn" onclick="event.stopPropagation(); ${isDeck?'openDeckEditor':'startEdit'}(${id})">수정</button><button class="del-btn" onclick="event.stopPropagation(); deleteItem(${id})">삭제</button>`;
+        bar.innerHTML = `<button class="edit-btn" onclick="event.stopPropagation(); startEdit(${id})">수정</button><button class="del-btn" onclick="event.stopPropagation(); deleteItem(${id})">삭제</button>`;
         return bar;
     };
 
-    window.startEdit = (id) => {
-        const p = db.posts.find(x => x.id === id); if(!p) return;
-        editId = id; catIn.value = p.category; titIn.value = p.title; mainIn.checked = p.isMain;
-        adminTitle.innerText = "🛠️ 자료 수정"; document.getElementById('admin').style.display = 'block';
-        document.querySelector('.content-scroll').scrollTo(0,0);
-    };
-
-    const openDeckEditor = (id) => {
-        const p = db.posts.find(x => x.id === id); if(!p) return;
-        editId = id; edTit.value = p.title; edType.value = p.deckType || 'offense'; edMain.checked = p.isMain;
-        edP1.value = p.picks?.[0] || ''; edP2.value = p.picks?.[1] || ''; edP3.value = p.picks?.[2] || '';
-        document.getElementById('deckEditor').style.display = 'flex';
-    };
-
-    const closeDeckEditor = () => { if(confirm("정말 취소하시겠습니까?")) document.getElementById('deckEditor').style.display='none'; };
-
-    const saveDeckEdit = async () => {
-        const p = db.posts.find(x => x.id === editId);
-        p.title = edTit.value; p.deckType = edType.value; p.isMain = edMain.checked;
-        p.picks = [edP1.value, edP2.value, edP3.value].filter(v => v);
-        await syncDB(); location.reload();
-    };
-
-    const doUpload = async () => {
-        const btn = document.getElementById('upBtn'); if(!titIn.value) return alert("내용을 입력해주세요.");
-        btn.innerText = "저장 중..."; btn.disabled = true;
-        try {
-            let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now(), category: catIn.value, isMain: mainIn.checked };
-            t.title = titIn.value;
-            if(t.category === 'photo' && fileIn.files.length > 0) {
-                const urls = [];
-                for(let f of fileIn.files) {
-                    const fd = new FormData(); fd.append('file', f); fd.append('upload_preset', CONFIG.PRESET);
-                    const r = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.CLOUD}/image/upload`, { method: 'POST', body: fd });
-                    const d = await r.json(); urls.push(d.secure_url);
-                }
-                t.links = urls;
-            } else if(t.category.includes('video')) t.links = [linkIn.value];
-            
-            if(!editId) db.posts.push(t);
-            await syncDB(); location.reload();
-        } catch (e) { alert("오류 발생"); btn.disabled = false; }
-    };
-
-    const syncDB = async () => { await fetch(CONFIG.API, { method:'PUT', headers:{'Content-Type':'application/json','X-Master-Key':CONFIG.KEY}, body:JSON.stringify(db) }); };
-    const deleteItem = async (id) => { if(confirm("삭제할까요?")) { db.posts = db.posts.filter(p=>p.id!==id); await syncDB(); render(); } };
     const closeModal = (id) => { document.getElementById(id).style.display = 'none'; document.getElementById('mediaContainer').innerHTML = ''; };
-    const goTab = (f, b) => { curFilter=f; curSub='전체'; document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); render(); };
+    const goTab = (f, b) => { curFilter=f; document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); render(); };
     const handleSearch = (e) => { keyword = e.target.value; render(); };
-    const resetAdmin = () => { editId=null; adminTitle.innerText="📤 자료 등록"; titIn.value=''; document.getElementById('admin').style.display='none'; };
 </script>
 </body>
 </html>
