@@ -53,10 +53,16 @@
         .info-label { color: var(--gold); font-size: 12px; font-weight: bold; margin-bottom: 8px; display: block; }
         .info-value { color: #fff; font-size: 14px; line-height: 1.6; word-break: keep-all; white-space: pre-wrap; }
 
-        #admin { display: none; background: #161c24; padding: 15px; border-radius: 15px; border: 1px solid var(--gold); margin-bottom: 25px; }
-        #admin input, #admin select, #admin textarea { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; font-size: 16px; outline: none; }
+        /* 관리자 & 편집 페이지 공통 */
+        #admin, #deckEditor { display: none; background: #161c24; padding: 15px; border-radius: 15px; border: 1px solid var(--gold); margin-bottom: 25px; }
+        input, select, textarea { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; font-size: 16px; outline: none; }
         .btn-gold { background: var(--gold); color: #000; border: none; padding: 16px; border-radius: 10px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; }
         
+        /* 전략 덱 전용 편집 레이아웃 */
+        #deckEditor { position: fixed; inset: 0; z-index: 11000; border: none; border-radius: 0; overflow-y: auto; height: 100vh; display: none; flex-direction: column; }
+        .editor-header { background: #161c24; border-bottom: 1px solid var(--gold); padding: 18px; text-align: center; position: sticky; top: 0; z-index: 10; }
+        .editor-content { padding: 20px; flex: 1; max-width: 600px; margin: 0 auto; width: 100%; }
+
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; padding: 15px; }
         .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; }
         .hero-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
@@ -74,6 +80,32 @@
 
 <div id="gatekeeper"><div class="gate-box"><h2 style="color:var(--gold); margin-bottom:20px;">🛡️ GlowingS</h2><input type="password" id="pw" placeholder="ACCESS CODE" style="width:100%; padding:15px; border-radius:10px; margin-bottom:15px; border:none; text-align:center; font-size:18px; background:#000; color:var(--gold);"><button class="btn-gold" onclick="checkGate()">ACCESS ENTER</button></div></div>
 
+<div id="deckEditor">
+    <div class="editor-header">
+        <h2 style="color:var(--gold);">⚔️ 전략 덱 상세 편집</h2>
+    </div>
+    <div class="editor-content">
+        <label class="info-label">덱 제목</label>
+        <input type="text" id="edTit" placeholder="덱 이름을 입력하세요">
+        
+        <label class="info-label">덱 종류</label>
+        <select id="edType"><option value="offense">⚔️ 공격 덱</option><option value="defense">🛡️ 방어 덱</option></select>
+        
+        <label class="info-label">영웅 배치 (검색 후 선택)</label>
+        <div style="background:rgba(0,0,0,0.3); padding:15px; border-radius:12px; margin-bottom:15px; border:1px solid #333;">
+            <input type="text" placeholder="영웅1 검색..." onkeyup="filterHeroSelect(this, 'edP1')"><select id="edP1"></select>
+            <input type="text" placeholder="영웅2 검색..." onkeyup="filterHeroSelect(this, 'edP2')"><select id="edP2"></select>
+            <input type="text" placeholder="영웅3 검색..." onkeyup="filterHeroSelect(this, 'edP3')"><select id="edP3"></select>
+        </div>
+        
+        <label class="info-label">상세 내용 (항목: 내용 형식)</label>
+        <textarea id="edDesc" style="height: 250px;" placeholder="항목: 내용 형식으로 작성하세요.&#10;예)&#10;속공: 512&#10;주의사항: 1번 스킬 우선"></textarea>
+        
+        <button class="btn-gold" id="edSaveBtn" onclick="saveDeckEdit()">✅ 수정 완료 및 저장</button>
+        <button class="btn-gold" onclick="closeDeckEditor()" style="background:#333; color:#fff; margin-top:10px;">나가기 (취소)</button>
+    </div>
+</div>
+
 <div id="main">
     <header onclick="askAdmin()"><h1>🛡️ GlowingS ARCHIVE</h1></header>
     <div class="search-container"><input type="text" id="mainSearch" class="search-box" placeholder="공략, 영웅, 덱 검색..." onkeyup="handleSearch(event)"></div>
@@ -89,20 +121,13 @@
                     <option value="video_pvp">🎥 PVP 공략</option>
                     <option value="deck_reg">⚔️ 전략 덱 등록</option>
                 </select>
-                <div id="deckUI" style="display:none;">
-                    <select id="deckTypeIn"><option value="offense">⚔️ 공격 덱</option><option value="defense">🛡️ 방어 덱</option></select>
-                    <input type="text" id="p1_search" placeholder="영웅1 검색..." onkeyup="filterHeroSelect(this, 'p1')"><select id="p1"></select>
-                    <input type="text" id="p2_search" placeholder="영웅2 검색..." onkeyup="filterHeroSelect(this, 'p2')"><select id="p2"></select>
-                    <input type="text" id="p3_search" placeholder="영웅3 검색..." onkeyup="filterHeroSelect(this, 'p3')"><select id="p3"></select>
-                    <textarea id="dTxt" placeholder="항목: 내용 형식으로 작성하세요. (줄바꿈 필수)&#10;예)&#10;속공: 512&#10;펫: 라이언 4성&#10;주의사항: 1번 스킬 먼저 쓰기"></textarea>
+                <div id="deckUI" style="display:none; background:rgba(0,0,0,0.2); padding:10px; border-radius:10px; margin-bottom:12px;">
+                    <p style="font-size:12px; color:#888; margin-bottom:10px;">* 덱 상세 정보는 등록 후 '수정'에서 더 편하게 고칠 수 있습니다.</p>
                 </div>
-                <div id="heroGradeSet" style="display:none;">
-                    <select id="gradeIn"><option value="old">🟣 구세나</option><option value="leg">🟡 전설</option><option value="rare">🔵 희귀</option></select>
-                </div>
+                <div id="heroGradeSet" style="display:none;"><select id="gradeIn"><option value="old">🟣 구세나</option><option value="leg">🟡 전설</option><option value="rare">🔵 희귀</option></select></div>
                 <input type="text" id="titIn" placeholder="제목을 입력하세요">
                 <div id="fileArea"><input type="file" id="fileIn" multiple accept="image/*" style="border:none; padding:10px 0;"></div>
                 <button class="btn-gold" id="upBtn" onclick="doUpload()">💾 데이터 저장하기</button>
-                <button class="btn-gold" onclick="resetAdmin()" style="background:#333; color:#fff; margin-top:10px;">취소 / 초기화</button>
             </div>
 
             <div class="sticky-tabs">
@@ -163,8 +188,6 @@
     };
 
     const checkGate = () => { if(document.getElementById('pw').value === 'glowing99') { sessionStorage.setItem('auth', 'true'); location.reload(); } };
-    
-    // 관리자 암호를 1005로 수정
     const askAdmin = () => { if(!isAdmin && prompt("ADMIN CODE:") === '1005') { sessionStorage.setItem('admin', 'true'); location.reload(); } };
     
     const fetchData = async () => {
@@ -178,7 +201,7 @@
 
     const updateSelectors = () => {
         const heroes = db.posts.filter(p => p.category === 'hero_reg').sort((a,b) => a.title.localeCompare(b.title));
-        ['p1', 'p2', 'p3'].forEach(id => {
+        ['edP1', 'edP2', 'edP3'].forEach(id => {
             const el = document.getElementById(id); if(!el) return;
             let h = '<option value="">선택 안함</option>';
             heroes.forEach(x => h += `<option value="${x.title}">${x.title}</option>`);
@@ -189,9 +212,7 @@
     const filterHeroSelect = (input, target) => {
         const val = input.value;
         const opts = document.getElementById(target).options;
-        for(let i=0; i<opts.length; i++) {
-            opts[i].style.display = opts[i].text.includes(val) ? "block" : "none";
-        }
+        for(let i=0; i<opts.length; i++) { opts[i].style.display = opts[i].text.includes(val) ? "block" : "none"; }
     };
 
     const render = () => {
@@ -263,12 +284,8 @@
         let infoHtml = '';
         lines.forEach((line, idx) => {
             const parts = line.split(':');
-            let label = '설명';
-            let value = line.trim();
-            if (parts.length > 1) {
-                label = parts[0].trim();
-                value = parts.slice(1).join(':').trim();
-            }
+            let label = '설명'; let value = line.trim();
+            if (parts.length > 1) { label = parts[0].trim(); value = parts.slice(1).join(':').trim(); }
             const isFull = (idx === lines.length - 1 || value.length > 15);
             infoHtml += `<div class="deck-info-box ${isFull?'full':''}">
                 <span class="info-label">${label}</span>
@@ -278,7 +295,7 @@
         deckModalDetails.innerHTML = infoHtml || '<p style="grid-column:span 2; text-align:center; color:#555; padding:20px;">정보가 없습니다.</p>';
         if(isAdmin) {
             deckModalAdmin.style.display = 'block';
-            deckModalAdmin.innerHTML = createAdminBar(p.id).outerHTML;
+            deckModalAdmin.innerHTML = createAdminBar(p.id, 'deck').outerHTML;
         } else { deckModalAdmin.style.display = 'none'; }
         document.getElementById('deckModal').style.display = 'flex';
     };
@@ -293,21 +310,48 @@
         document.getElementById('heroModal').style.display = 'flex';
     };
 
-    window.startEdit = (id) => {
+    // [중요] 전략 덱 전용 독립 편집기 열기
+    window.openDeckEditor = (id) => {
         const p = db.posts.find(x => x.id === id);
         if(!p) return;
+        editId = id;
+        edTit.value = p.title || '';
+        edType.value = p.deckType || 'offense';
+        edP1.value = p.picks?.[0] || '';
+        edP2.value = p.picks?.[1] || '';
+        edP3.value = p.picks?.[2] || '';
+        edDesc.value = p.desc || '';
+        
+        document.getElementById('deckEditor').style.display = 'flex';
+        closeModal('deckModal');
+    };
+
+    const closeDeckEditor = () => { editId = null; document.getElementById('deckEditor').style.display = 'none'; };
+
+    const saveDeckEdit = async () => {
+        const btn = document.getElementById('edSaveBtn');
+        if(!edTit.value) return alert("제목을 입력해주세요.");
+        btn.innerText = "저장 중..."; btn.disabled = true;
+
+        let t = db.posts.find(x => x.id === editId);
+        t.title = edTit.value;
+        t.deckType = edType.value;
+        t.picks = [edP1.value, edP2.value, edP3.value].filter(x => x);
+        t.desc = edDesc.value;
+
+        await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) });
+        location.reload();
+    };
+
+    // 일반 자료 수정 모드
+    window.startEdit = (id) => {
+        const p = db.posts.find(x => x.id === id);
+        if(p.category === 'deck_reg') return openDeckEditor(id); // 덱은 독립 페이지로
         editId = id;
         catIn.value = p.category;
         catIn.dispatchEvent(new Event('change'));
         titIn.value = p.title || '';
         if(p.category === 'hero_reg') gradeIn.value = p.grade || 'leg';
-        if(p.category === 'deck_reg') {
-            deckTypeIn.value = p.deckType;
-            p1.value = p.picks?.[0] || '';
-            p2.value = p.picks?.[1] || '';
-            p3.value = p.picks?.[2] || '';
-            dTxt.value = p.desc || '';
-        }
         adminTitle.innerText = "🛠️ 데이터 수정 모드";
         document.getElementById('admin').style.display = 'block';
         closeModal('deckModal'); closeModal('heroModal');
@@ -322,7 +366,7 @@
         let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now() };
         t.category = catIn.value; t.title = titIn.value; t.isMain = true;
         if(t.category === 'hero_reg') t.grade = gradeIn.value;
-        if(t.category === 'deck_reg') { t.deckType = deckTypeIn.value; t.picks = [p1.value, p2.value, p3.value].filter(x => x); t.desc = dTxt.value; }
+        if(t.category === 'deck_reg') { t.deckType = 'offense'; t.picks = []; t.desc = ""; } // 초기 등록은 심플하게
         
         if(fileIn.files.length > 0) {
             const fd = new FormData(); fd.append('file', fileIn.files[0]); fd.append('upload_preset', CONFIG.PRESET);
@@ -337,13 +381,20 @@
     };
 
     const deleteItem = async (id) => { if(confirm("정말로 삭제하시겠습니까?")) { db.posts = db.posts.filter(p => p.id !== id); await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) }); render(); closeModal('deckModal'); closeModal('heroModal'); } };
-    const createAdminBar = (id) => { const bar = document.createElement('div'); bar.className = 'admin-edit-bar'; bar.innerHTML = `<button class="edit-btn" onclick="startEdit(${id})">수정</button><button class="del-btn" onclick="deleteItem(${id})">삭제</button>`; return bar; };
+    
+    const createAdminBar = (id, type) => {
+        const bar = document.createElement('div'); bar.className = 'admin-edit-bar';
+        const editFunc = type === 'deck' ? `openDeckEditor(${id})` : `startEdit(${id})`;
+        bar.innerHTML = `<button class="edit-btn" onclick="${editFunc}">수정</button><button class="del-btn" onclick="deleteItem(${id})">삭제</button>`;
+        return bar;
+    };
+
     const goTab = (f, b) => { curFilter = f; curSub = f === 'guild' ? 'offense' : '전체'; document.querySelectorAll('.tab-btn').forEach(x => x.classList.remove('active')); b.classList.add('active'); render(); };
     const goSub = (s) => { curSub = s; render(); };
     const handleSearch = (e) => { keyword = e.target.value; render(); };
     const closeModal = (id) => document.getElementById(id).style.display = 'none';
     const closeModalOnBg = (e, id) => { if(e.target.id === id) closeModal(id); };
-    const resetAdmin = () => { editId = null; adminTitle.innerText = "📤 자료 등록"; titIn.value = ''; dTxt.value = ''; p1.value=''; p2.value=''; p3.value=''; fileIn.value=''; };
+    const resetAdmin = () => { editId = null; adminTitle.innerText = "📤 자료 등록"; titIn.value = ''; fileIn.value=''; };
 
     catIn.onchange = (e) => {
         deckUI.style.display = e.target.value === 'deck_reg' ? 'block' : 'none';
