@@ -24,21 +24,24 @@
         .sub-tabs { display: flex; gap: 8px; margin-top: 12px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none; }
         .sub-btn { flex-shrink: 0; padding: 10px 16px; font-size: 13px; background: #0a0e14; color: #888; border: 1px solid #333; border-radius: 6px; white-space: nowrap; font-weight: bold; }
         .sub-btn.active-sub { border-color: var(--gold); color: var(--gold); background: rgba(212, 175, 55, 0.1); }
-        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; align-items: stretch; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
         @media (min-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-        .card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #2d343e; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; height: 100%; }
+        .card { background: var(--card); border-radius: 15px; overflow: hidden; border: 1px solid #2d343e; display: flex; flex-direction: column; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.3); transition: transform 0.2s; cursor: pointer; }
         .card:active { transform: scale(0.98); }
-        .card-header { padding: 15px; text-align: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .card-header { padding: 15px; text-align: center; background: rgba(0,0,0,0.3); border-bottom: 1px solid #333; }
         .card-title { font-size: 14px; color: var(--gold); font-weight: bold; }
-        .deck-heroes-preview { display: flex; justify-content: center; gap: 10px; padding: 15px; background: rgba(0,0,0,0.2); flex-shrink: 0; }
-        .deck-preview-text { padding: 10px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; margin-top: auto; flex-shrink: 0; }
-        .modal-content-box { background: #161c24; width: 95%; max-width: 500px; border-radius: 20px; border: 1px solid var(--gold); overflow: hidden; position: relative; max-height: 90vh; display: flex; flex-direction: column; }
-        .deck-heroes-row { display: flex; justify-content: center; gap: 15px; padding: 25px 10px; background: linear-gradient(to bottom, rgba(212, 175, 55, 0.1), transparent); }
-        .deck-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; overflow-y: auto; }
+        .deck-heroes-preview { display: flex; justify-content: center; gap: 10px; padding: 15px; background: rgba(0,0,0,0.2); }
+        .deck-preview-text { padding: 10px; font-size: 12px; color: #888; text-align: center; border-top: 1px solid #333; }
+        
+        /* 모달 스크롤 및 레이아웃 수정 */
+        .modal-content-box { background: #161c24; width: 95%; max-width: 500px; border-radius: 20px; border: 1px solid var(--gold); overflow: hidden; position: relative; max-height: 85vh; display: flex; flex-direction: column; }
+        .deck-heroes-row { display: flex; justify-content: center; gap: 15px; padding: 25px 10px; background: linear-gradient(to bottom, rgba(212, 175, 55, 0.1), transparent); flex-shrink: 0; }
+        .deck-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px; overflow-y: auto; flex: 1; -webkit-overflow-scrolling: touch; }
         .deck-info-box { background: rgba(0, 0, 0, 0.5); border: 1px solid #333; border-radius: 12px; padding: 14px; }
         .deck-info-box.full { grid-column: span 2; }
         .info-label { color: var(--gold); font-size: 12px; font-weight: bold; margin-bottom: 8px; display: block; }
-        .info-value { color: #fff; font-size: 14px; line-height: 1.6; word-break: keep-all; white-space: pre-wrap; }
+        .info-value { color: #fff; font-size: 14px; line-height: 1.6; word-break: break-all; white-space: pre-wrap; }
+        
         #admin, #deckEditor { display: none; background: #161c24; padding: 15px; border-radius: 15px; border: 1px solid var(--gold); margin-bottom: 25px; }
         input, select, textarea { width: 100%; padding: 14px; margin-bottom: 12px; background: #000; border: 1px solid #444; color: #fff; border-radius: 10px; font-size: 16px; outline: none; }
         .btn-gold { background: var(--gold); color: #000; border: none; padding: 16px; border-radius: 10px; font-weight: bold; width: 100%; font-size: 16px; cursor: pointer; }
@@ -46,43 +49,22 @@
         .editor-header { background: #161c24; border-bottom: 1px solid var(--gold); padding: 18px; text-align: center; position: sticky; top: 0; z-index: 10; }
         .editor-content { padding: 20px; flex: 1; max-width: 600px; margin: 0 auto; width: 100%; padding-bottom: 50px; }
         .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 10000; align-items: center; justify-content: center; padding: 15px; }
-        
-        /* 영웅 도감 그리드 및 유닛 스타일 수정 */
         .hero-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(85px, 1fr)); gap: 12px; }
-        .hero-unit { position: relative; width: 75px; height: 75px; margin: 0 auto; cursor: pointer; }
-        .hero-img { width: 100%; height: 100%; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
+        .hero-img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #444; object-fit: cover; }
         .border-old { border-color: var(--purple) !important; }
         .border-leg { border-color: var(--gold) !important; }
         .border-rare { border-color: var(--blue) !important; }
+        .hero-name { font-size: 12px; margin-top: 8px; color: #fff; text-align: center; }
         
-        /* 영웅 이름을 중앙 하단에 위치하도록 수정 */
-        .hero-name { 
-            position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-            width: 90%; background: rgba(0, 0, 0, 0.7); color: #fff; font-size: 10px;
-            text-align: center; padding: 2px 0; border-radius: 4px; font-weight: bold;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            pointer-events: none;
-        }
-
-        .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; }
+        .admin-edit-bar { display: flex; border-top: 1px solid #444; background: #000; flex-shrink: 0; }
         .edit-btn, .del-btn { padding: 14px; font-size: 14px; flex: 1; border: none; cursor: pointer; font-weight: bold; }
         .edit-btn { background: #1c2b3e; color: #66b2ff; }
         .del-btn { background: #421010; color: #ff8888; border-left: 1px solid #333; }
-        .close-circle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; z-index: 10005; }
+        
+        .close-circle { position: absolute; top: 15px; right: 15px; background: rgba(255,255,255,0.1); width: 34px; height: 34px; border-radius: 50%; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; z-index: 10; }
         .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -60%); font-size: 45px; pointer-events: none; text-shadow: 0 0 10px rgba(0,0,0,0.8); }
         .check-container { display: flex; align-items: center; gap: 10px; margin: 10px 0 20px 5px; color: var(--gold); font-weight: bold; font-size: 15px; cursor: pointer; }
         .check-container input { width: 20px; height: 20px; margin: 0; cursor: pointer; }
-
-        .slide-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.1); color: #fff; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 10001; display: flex; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.2); }
-        .arrow-prev { left: 15px; }
-        .arrow-next { right: 15px; }
-        
-        .slide-counter { 
-            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); 
-            background: rgba(0,0,0,0.6); color: var(--gold); padding: 5px 15px; 
-            border-radius: 20px; font-size: 13px; font-weight: bold; z-index: 10002; 
-            border: 1px solid var(--gold); pointer-events: none;
-        }
     </style>
 </head>
 <body>
@@ -155,24 +137,28 @@
     </div>
 </div>
 
-<div id="mediaModal" class="modal" onclick="closeModalOnBg(event, 'mediaModal')">
-    <div class="close-circle" onclick="closeModal('mediaModal')">&times;</div>
-    <div id="slideIndicator" class="slide-counter">1 / 1</div>
-    <button id="prevBtn" class="slide-arrow arrow-prev" onclick="moveSlide(-1)">&#10094;</button>
-    <div id="mediaContainer" style="width:100%; max-width:800px; display:flex; justify-content:center;"></div>
-    <button id="nextBtn" class="slide-arrow arrow-next" onclick="moveSlide(1)">&#10095;</button>
+<div id="mediaModal" class="modal" onclick="closeModalOnBg(event, 'mediaModal')"><div class="close-circle" onclick="closeModal('mediaModal')">&times;</div><div id="mediaContainer" style="width:100%; max-width:800px; display:flex; justify-content:center;"></div></div>
+
+<div id="deckModal" class="modal" onclick="closeModalOnBg(event, 'deckModal')">
+    <div class="modal-content-box">
+        <div class="close-circle" onclick="closeModal('deckModal')">&times;</div>
+        <div id="deckModalTitle" style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #333; flex-shrink:0;"></div>
+        <div id="deckModalHeroes"></div>
+        <div id="deckModalDetails" class="deck-detail-grid"></div>
+        <div id="deckAdminBarContainer" class="admin-edit-bar" style="display:none;"></div>
+    </div>
 </div>
 
-<div id="deckModal" class="modal" onclick="closeModalOnBg(event, 'deckModal')"><div class="modal-content-box"><div class="close-circle" onclick="closeModal('deckModal')">&times;</div><div id="deckModalTitle" style="padding:20px; text-align:center; color:var(--gold); font-weight:bold; border-bottom:1px solid #333;"></div><div id="deckModalHeroes"></div><div id="deckModalDetails" class="deck-detail-grid"></div></div></div>
 <div id="heroModal" class="modal" onclick="closeModalOnBg(event, 'heroModal')"><div class="gate-box" style="max-width:400px; width:92%;"><div class="close-circle" onclick="closeModal('heroModal')">&times;</div><img id="mHeroImg" class="hero-img" style="width:90px; height:90px; margin-bottom:10px;"><h3 id="mHeroName" style="color:var(--gold);"></h3><div id="mUsage" style="max-height:280px; overflow-y:auto; text-align:left; margin-top:15px; border-top:1px solid #333; padding-top:10px;"></div></div></div>
 
 <script>
-    const CONFIG = { API: "https://api.jsonbin.io/v3/b/69ae6f09d0ea881f40ff0f44", KEY: "$2a$10$hcOVgg3LvdoRgRZdayPtVOA3gbxyOY7UibDbi/jcJnMlPiok/xlcO", CLOUD: "djef3ylqf", PRESET: "guild_preset" };
+    const CONFIG = { 
+        API: "https://api.jsonbin.io/v3/b/69ae6f09d0ea881f40ff0f44", 
+        KEY: "$2a$10$hcOVgg3LvdoRgRZdayPtVOA3gbxyOY7UibDbi/jcJnMlPiok/xlcO", 
+        CLOUD: "djef3ylqf", 
+        PRESET: "guild_preset" 
+    };
     let db = { posts: [] }, isAdmin = false, curFilter = 'all', curSub = '전체', keyword = "", editId = null;
-    
-    let currentSlideLinks = [];
-    let currentSlideIdx = 0;
-    let currentSlideIsVideo = false;
 
     window.onload = () => {
         if(sessionStorage.getItem('auth') === 'true') {
@@ -190,8 +176,9 @@
     const fetchData = async () => {
         try {
             const res = await fetch(`${CONFIG.API}/latest`, { headers: { "X-Master-Key": CONFIG.KEY, "X-Bin-Meta": "false" }, cache: 'no-store' });
+            if(!res.ok) throw new Error("서버 응답 오류");
             const data = await res.json(); db.posts = data.posts || []; updateSelectors(); render();
-        } catch(e) { console.error(e); }
+        } catch(e) { console.error("데이터 로드 실패:", e); }
     };
 
     const updateSelectors = () => {
@@ -253,15 +240,15 @@
         if(curFilter === 'guild' && curSub === 'hero') {
             heroesEl.style.display = 'block';
             const gm = { 'old': { t: '🟣 구세나', c: 'var(--purple)', h: [] }, 'leg': { t: '🟡 전설', c: 'var(--gold)', h: [] }, 'rare': { t: '🔵 희귀', c: 'var(--blue)', h: [] } };
-            filtered.sort((a,b) => a.title.localeCompare(b.title)).forEach(h => { if(gm[h.grade]) gm[h.grade].h.push(h); else gm['leg'].h.push(h); });
+            filtered.forEach(h => { if(gm[h.grade]) gm[h.grade].h.push(h); else gm['leg'].h.push(h); });
             ['old', 'leg', 'rare'].forEach(g => {
                 if(gm[g].h.length > 0) {
                     const sec = document.createElement('div'); sec.innerHTML = `<h3 style="color:${gm[g].c}; margin: 25px 0 10px 5px; border-bottom:1px solid #333; padding-bottom:5px;">${gm[g].t}</h3>`;
                     const grid = document.createElement('div'); grid.className = 'hero-grid';
                     gm[g].h.forEach(h => {
-                        const unit = document.createElement('div'); unit.className = 'hero-unit';
-                        unit.innerHTML = `<img src="${h.img}" class="hero-img border-${g}" loading="lazy"><div class="hero-name">${h.title}</div>`;
-                        unit.onclick = () => showHeroDetail(h); grid.appendChild(unit);
+                        const u = document.createElement('div'); u.className = 'hero-unit';
+                        u.innerHTML = `<img src="${h.img}" class="hero-img border-${g}" loading="lazy"><div class="hero-name">${h.title}</div>`;
+                        u.onclick = () => showHeroDetail(h); grid.appendChild(u);
                     });
                     sec.appendChild(grid); heroesEl.appendChild(sec);
                 }
@@ -283,11 +270,9 @@
         let t = "https://via.placeholder.com/400x225/1c2b3e/gold?text=GlowingS", isV = p.category.includes('video'), yId = getYTubeId(p.links?.[0]);
         if (isV && yId) t = `https://img.youtube.com/vi/${yId}/hqdefault.jpg`;
         else if (p.links && p.links[0]) t = p.links[0];
-        
-        div.innerHTML = `<img src="${t}" style="width:100%; aspect-ratio:16/9; object-fit:cover; flex-shrink:0;" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div>${p.subCategory ? `<div style="font-size:11px; color:#888; margin-top:5px;">[${p.subCategory}]</div>` : ''}</div><div class="deck-preview-text">상세 보기</div>`;
-        
-        div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openPostMedia(p); };
-        if (isV) div.innerHTML += `<div class="play-icon">▶️</div>`;
+        div.innerHTML = `<img src="${t}" style="width:100%; aspect-ratio:16/9; object-fit:cover;" loading="lazy"><div class="card-header"><div class="card-title">${p.title}</div>${p.subCategory ? `<div style="font-size:11px; color:#888; margin-top:5px;">[${p.subCategory}]</div>` : ''}</div>`;
+        if (isV) { div.innerHTML += `<div class="play-icon">▶️</div>`; div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(p.links[0], 'video'); }; }
+        else div.onclick = (e) => { if(!e.target.closest('.admin-edit-bar')) openMedia(t, 'img'); };
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'media')); return div;
     };
 
@@ -301,37 +286,6 @@
         if(isAdmin) div.appendChild(createAdminBar(p.id, 'deck')); return div;
     };
 
-    const openPostMedia = (p) => {
-        currentSlideLinks = p.links || [];
-        currentSlideIdx = 0;
-        currentSlideIsVideo = p.category.includes('video');
-        updateSlideContent();
-        document.getElementById('mediaModal').style.display = 'flex';
-    };
-
-    const updateSlideContent = () => {
-        const mc = document.getElementById('mediaContainer');
-        const url = currentSlideLinks[currentSlideIdx];
-        const indicator = document.getElementById('slideIndicator');
-        indicator.innerText = `${currentSlideIdx + 1} / ${currentSlideLinks.length}`;
-        indicator.style.display = currentSlideLinks.length > 1 ? 'block' : 'none';
-        if (currentSlideIsVideo) {
-            const yId = getYTubeId(url);
-            mc.innerHTML = yId ? `<iframe width="100%" style="aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${yId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : `<p>링크 오류</p>`;
-        } else {
-            mc.innerHTML = `<img src="${url}" style="max-width:100%; max-height:80vh; border-radius:10px; object-fit:contain;">`;
-        }
-        document.getElementById('prevBtn').style.display = currentSlideLinks.length > 1 ? 'flex' : 'none';
-        document.getElementById('nextBtn').style.display = currentSlideLinks.length > 1 ? 'flex' : 'none';
-    };
-
-    window.moveSlide = (step) => {
-        currentSlideIdx += step;
-        if (currentSlideIdx < 0) currentSlideIdx = currentSlideLinks.length - 1;
-        if (currentSlideIdx >= currentSlideLinks.length) currentSlideIdx = 0;
-        updateSlideContent();
-    };
-
     const showDeckDetail = (p) => {
         const hm = {}; db.posts.filter(x => x.category === 'hero_reg').forEach(h => hm[h.title] = h);
         deckModalTitle.innerText = p.title;
@@ -341,10 +295,21 @@
         const items = [{l:'⚡ 속공', v:p.speed}, {l:'💍 반지', v:p.ring}, {l:'🐾 펫', v:p.pet}, {l:'📜 스킬 순서', v:p.skill}, {l:'🛡️ 진형', v:p.form}, {l:'📝 특이사항', v:p.extra, f:true}];
         let iHtml = ''; items.forEach(i => { if(i.v) iHtml += `<div class="deck-info-box ${i.f?'full':''}"><span class="info-label">${i.l}</span><div class="info-value">${i.v}</div></div>`; });
         deckModalDetails.innerHTML = iHtml || '<p style="grid-column:span 2; text-align:center; color:#555; padding:20px;">정보가 없습니다.</p>';
+        
+        // 관리자용 수정/삭제 버튼 표시 설정
+        const adminBar = document.getElementById('deckAdminBarContainer');
+        if(isAdmin) {
+            adminBar.style.display = 'flex';
+            adminBar.innerHTML = `<button class="edit-btn" onclick="openDeckEditor(${p.id})">수정</button><button class="del-btn" onclick="deleteItem(${p.id})">삭제</button>`;
+        } else {
+            adminBar.style.display = 'none';
+        }
+        
         document.getElementById('deckModal').style.display = 'flex';
     };
 
     window.showDeckDetailById = (id) => { const targetDeck = db.posts.find(x => x.id === id); if(targetDeck) showDeckDetail(targetDeck); };
+
     const showHeroDetail = (h) => {
         mHeroImg.src = h.img; mHeroName.innerText = h.title;
         const bc = h.grade === 'old' ? 'var(--purple)' : (h.grade === 'rare' ? 'var(--blue)' : 'var(--gold)');
@@ -362,22 +327,39 @@
         edP1.value = p.picks?.[0] || ''; edP2.value = p.picks?.[1] || ''; edP3.value = p.picks?.[2] || '';
         edSpeed.value = p.speed || ''; edRing.value = p.ring || ''; edPet.value = p.pet || '';
         edSkill.value = p.skill || ''; edForm.value = p.form || ''; edExtra.value = p.extra || '';
-        document.getElementById('deckEditor').style.display = 'flex'; closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
+        document.getElementById('deckEditor').style.display = 'flex'; 
+        closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
     };
 
     window.closeDeckEditor = () => { if(confirm("수정 중인 내용이 저장되지 않습니다. 닫으시겠습니까?")) document.getElementById('deckEditor').style.display = 'none'; };
+
+    /* 강화된 saveDeckEdit: 서버 응답 확인 추가 */
     const saveDeckEdit = async () => {
-        const btn = document.getElementById('edSaveBtn'); if(!edTit.value) return alert("제목 필수");
+        const btn = document.getElementById('edSaveBtn'); if(!edTit.value) return alert("제목을 입력해주세요.");
         btn.innerText = "저장 중..."; btn.disabled = true;
         try {
             let t = db.posts.find(x => x.id === editId);
+            if(!t) throw new Error("수정 대상을 찾을 수 없습니다.");
+            
             t.title = edTit.value; t.deckType = edType.value; t.isMain = edMain.checked;
             t.picks = [edP1.value, edP2.value, edP3.value].filter(x => x);
             t.speed = edSpeed.value; t.ring = edRing.value; t.pet = edPet.value;
             t.skill = edSkill.value; t.form = edForm.value; t.extra = edExtra.value;
-            await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) });
+            
+            const res = await fetch(CONFIG.API, { 
+                method: 'PUT', 
+                headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, 
+                body: JSON.stringify(db) 
+            });
+            
+            if(!res.ok) throw new Error("서버 저장 실패");
+            alert("수정되었습니다.");
             location.reload();
-        } catch (e) { alert("저장 실패"); btn.innerText = "✅ 저장 완료"; btn.disabled = false; }
+        } catch (e) {
+            console.error(e);
+            alert("저장 중 서버 오류가 발생했습니다. 잠시 후 다시 시도하세요.");
+            btn.innerText = "✅ 저장 완료"; btn.disabled = false;
+        }
     };
 
     window.startEdit = (id) => {
@@ -393,7 +375,12 @@
     };
 
     const doUpload = async () => {
-        const btn = document.getElementById('upBtn'); if(!titIn.value) return alert("제목 필수");
+        const btn = document.getElementById('upBtn'); 
+        if(!titIn.value) return alert("제목을 입력해주세요.");
+        if(!editId) {
+            if ((catIn.value === 'photo' || catIn.value === 'hero_reg') && fileIn.files.length === 0) return alert("이미지 파일을 첨부해주세요.");
+            if (catIn.value.includes('video') && !linkIn.value) return alert("유튜브 링크를 입력해주세요.");
+        }
         btn.innerText = "저장 중..."; btn.disabled = true;
         try {
             let t = editId ? db.posts.find(x => x.id === editId) : { id: Date.now() };
@@ -401,24 +388,36 @@
             if(t.category.startsWith('video')) t.subCategory = subCatIn.value;
             if(t.category === 'hero_reg') t.grade = gradeIn.value;
             if(t.category === 'deck_reg' && !editId) t.deckType = 'offense';
+            
             if(t.category.includes('video')) { if(linkIn.value) t.links = [linkIn.value]; await finishUpload(t); } 
             else if (t.category === 'photo' || t.category === 'hero_reg') {
                 if(fileIn.files.length > 0) {
                     const fd = new FormData(); fd.append('file', fileIn.files[0]); fd.append('upload_preset', CONFIG.PRESET);
                     const r = await fetch(`https://api.cloudinary.com/v1_1/${CONFIG.CLOUD}/image/upload`, { method: 'POST', body: fd });
-                    const d = await r.json(); if(t.category === 'hero_reg') t.img = d.secure_url; else t.links = [d.secure_url];
+                    const d = await r.json(); 
+                    if(t.category === 'hero_reg') t.img = d.secure_url; else t.links = [d.secure_url];
                 } await finishUpload(t);
             } else await finishUpload(t);
-        } catch (e) { alert("업로드 실패"); btn.innerText = "💾 저장하기"; btn.disabled = false; }
+        } catch (e) {
+            console.error(e);
+            alert("업로드 중 오류가 발생했습니다.");
+            btn.innerText = "💾 저장하기"; btn.disabled = false;
+        }
     };
 
     const finishUpload = async (t) => {
         if(!editId) db.posts.push(t);
-        await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) });
-        location.reload();
+        const res = await fetch(CONFIG.API, { 
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, 
+            body: JSON.stringify(db) 
+        });
+        if(res.ok) location.reload();
+        else alert("최종 데이터 서버 저장 실패");
     };
 
-    const deleteItem = async (id) => { if(confirm("삭제하시겠습니까?")) { db.posts = db.posts.filter(p => p.id !== id); await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) }); render(); } };
+    const deleteItem = async (id) => { if(confirm("정말로 삭제하시겠습니까?")) { db.posts = db.posts.filter(p => p.id !== id); await fetch(CONFIG.API, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'X-Master-Key': CONFIG.KEY }, body: JSON.stringify(db) }); render(); closeModal('deckModal'); } };
+    
     const createAdminBar = (id, type) => {
         const bar = document.createElement('div'); bar.className = 'admin-edit-bar';
         const eFunc = type === 'deck' ? `openDeckEditor(${id})` : `startEdit(${id})`;
@@ -429,6 +428,12 @@
     const goSub = (s) => { curSub = s; render(); };
     const handleSearch = (e) => { keyword = e.target.value; render(); };
     const closeModal = (id) => { document.getElementById(id).style.display = 'none'; if(id === 'mediaModal') document.getElementById('mediaContainer').innerHTML = ''; };
+    const openMedia = (u, t) => {
+        const mc = document.getElementById('mediaContainer');
+        if(t === 'video') { const yId = getYTubeId(u); mc.innerHTML = yId ? `<iframe width="100%" style="aspect-ratio:16/9; border:none; border-radius:10px;" src="https://www.youtube.com/embed/${yId}?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>` : `<p>링크 오류</p>`; }
+        else mc.innerHTML = `<img src="${u}" style="width:100%; border-radius:10px;">`;
+        document.getElementById('mediaModal').style.display = 'flex';
+    };
     const closeModalOnBg = (e, id) => { if(e.target.id === id) closeModal(id); };
     const resetAdmin = () => { editId = null; adminTitle.innerText = "📤 자료 등록"; titIn.value = ''; fileIn.value=''; linkIn.value=''; mainIn.checked=false; catIn.dispatchEvent(new Event('change')); };
 
@@ -444,7 +449,7 @@
             subCatIn.innerHTML = '<option value="결투장">결투장</option><option value="상급 결투장">상급 결투장</option><option value="실시간 결투장">실시간 결투장</option>';
         } else subCatUI.style.display = 'none';
         if (v === 'deck_reg') fileArea.style.display = 'none';
-        else if (v.includes('video')) { fileArea.style.display = 'block'; fileIn.style.display = 'none'; linkIn.value=''; linkIn.style.display = 'block'; }
+        else if (v.includes('video')) { fileArea.style.display = 'block'; fileIn.style.display = 'none'; linkIn.style.display = 'block'; }
         else { fileArea.style.display = 'block'; fileIn.style.display = 'block'; linkIn.style.display = 'none'; }
     };
 </script>
