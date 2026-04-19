@@ -341,13 +341,19 @@
 
     const showDeckDetail = (p) => {
         const hm = {}; db.posts.filter(x => x.category === 'hero_reg').forEach(h => hm[h.title] = h);
-        deckModalTitle.innerText = p.title;
+        
         let hHtml = '<div class="deck-heroes-row">';
         (p.picks || []).forEach(n => { if(hm[n]) { const bc = hm[n].grade === 'old' ? 'var(--purple)' : (hm[n].grade === 'rare' ? 'var(--blue)' : 'var(--gold)'); hHtml += `<div style="text-align:center;"><img src="${hm[n].img}" style="width:60px; height:60px; border-radius:50%; border:2px solid ${bc}; object-fit:cover;"><div style="font-size:11px; margin-top:8px; color:#fff;">${n}</div></div>`; } });
-        hHtml += '</div>'; deckModalHeroes.innerHTML = hHtml;
+        hHtml += '</div>';
+        
         const items = [{l:'⚡ 속공', v:p.speed}, {l:'💍 반지', v:p.ring}, {l:'🐾 펫', v:p.pet}, {l:'📜 스킬 순서', v:p.skill}, {l:'🛡️ 진형', v:p.form}, {l:'📝 특이사항', v:p.extra, f:true}];
         let iHtml = ''; items.forEach(i => { if(i.v) iHtml += `<div class="deck-info-box ${i.f?'full':''}"><span class="info-label">${i.l}</span><div class="info-value">${i.v}</div></div>`; });
-        deckModalDetails.innerHTML = iHtml || '<p style="grid-column:span 2; text-align:center; color:#555; padding:20px;">정보가 없습니다.</p>';
+        if(!iHtml) iHtml = '<p style="grid-column:span 2; text-align:center; color:#555; padding:20px;">정보가 없습니다.</p>';
+
+        // ✅ 교체 요청된 3줄
+        document.getElementById('deckModalTitle').innerText = p.title;
+        document.getElementById('deckModalHeroes').innerHTML = hHtml;
+        document.getElementById('deckModalDetails').innerHTML = iHtml;
 
         const adminBar = document.getElementById('deckAdminBarContainer');
         if(isAdmin) {
@@ -362,24 +368,14 @@
 
     window.showDeckDetailById = (id) => { const targetDeck = db.posts.find(x => String(x.id) === String(id)); if(targetDeck) showDeckDetail(targetDeck); };
 
-    /* ✅ 요청하신 최신 버전으로 교체된 함수 */
     const showHeroDetail = (h) => {
         dom.mHeroImg().src = safeImageUrl(h.img);
         dom.mHeroName().innerText = h.title || "";
 
-        const borderColor =
-            h.grade === "old"
-                ? "var(--purple)"
-                : h.grade === "rare"
-                ? "var(--blue)"
-                : "var(--gold)";
-
+        const borderColor = h.grade === "old" ? "var(--purple)" : h.grade === "rare" ? "var(--blue)" : "var(--gold)";
         dom.mHeroImg().style.borderColor = borderColor;
 
-        const usage = db.posts.filter(
-            p => p.category === "deck_reg" && (p.picks || []).includes(h.title)
-        );
-
+        const usage = db.posts.filter(p => p.category === "deck_reg" && (p.picks || []).includes(h.title));
         let html = '<p style="font-size:13px; color:var(--gold); margin-bottom:10px; font-weight:bold;">💡 활용 중인 조합</p>';
 
         usage.forEach(u => {
@@ -388,7 +384,6 @@
             ${escapeHTML(u.title || "")}</div>`;
         });
 
-        // ✅ 관리자일 때 수정 버튼 추가
         if (isAdmin) {
             html += `
             <div style="margin-top:15px; display:flex; gap:10px;">
@@ -398,11 +393,7 @@
             `;
         }
 
-        dom.mUsage().innerHTML =
-            usage.length > 0
-                ? html
-                : html + '<p style="text-align:center; color:#555; padding:10px;">조합 정보 없음</p>';
-
+        dom.mUsage().innerHTML = usage.length > 0 ? html : html + '<p style="text-align:center; color:#555; padding:10px;">조합 정보 없음</p>';
         document.getElementById("heroModal").style.display = "flex";
     };
 
@@ -446,16 +437,34 @@
         }
     };
 
+    // 🔥 1. startEdit 함수 (교체 완료)
     window.startEdit = (id) => {
-        const p = db.posts.find(x => String(x.id) === String(id)); if(!p) return;
+        const p = db.posts.find(x => String(x.id) === String(id));
+        if(!p) return;
+
         if(p.category === 'deck_reg') return openDeckEditor(id);
-        editId = id; dom.catIn().value = p.category; dom.catIn().dispatchEvent(new Event('change'));
-        dom.titIn().value = p.title || ''; dom.mainIn().checked = p.isMain || false;
+
+        editId = id;
+
+        dom.catIn().value = p.category;
+        dom.catIn().dispatchEvent(new Event('change'));
+
+        dom.titIn().value = p.title || '';
+        dom.mainIn().checked = p.isMain || false;
+
         if(p.subCategory) dom.subCatIn().value = p.subCategory;
         if(p.category === 'hero_reg') dom.gradeIn().value = p.grade || 'leg';
         if(p.category.includes('video')) dom.linkIn().value = p.links ? p.links[0] : '';
-        adminTitle.innerText = "🛠️ 데이터 수정 모드"; document.getElementById('admin').style.display = 'block';
-        closeModal('deckModal'); closeModal('heroModal'); closeModal('mediaModal');
+
+        // ✅ 여기 수정
+        document.getElementById('adminTitle').innerText = "🛠️ 데이터 수정 모드";
+
+        document.getElementById('admin').style.display = 'block';
+
+        closeModal('deckModal');
+        closeModal('heroModal');
+        closeModal('mediaModal');
+
         document.querySelector('.content-scroll').scrollTo(0,0);
     };
 
@@ -522,29 +531,49 @@
     const closeModalOnBg = (e, id) => { if(e.target.id === id) closeModal(id); };
     const resetAdmin = () => { editId = null; adminTitle.innerText = "📤 자료 등록"; dom.titIn().value = ''; dom.fileIn().value=''; dom.linkIn().value=''; dom.mainIn().checked=false; dom.catIn().dispatchEvent(new Event('change')); };
 
+    // 🔥 2. dom.catIn().onchange (교체 완료)
     dom.catIn().onchange = (e) => {
         const value = e.target.value;
-        deckUI.style.display = value === 'deck_reg' ? 'block' : 'none';
-        heroGradeSet.style.display = value === "hero_reg" ? "block" : "none";
+
+        // ✅ 안정화
+        document.getElementById('deckUI').style.display =
+            value === 'deck_reg' ? 'block' : 'none';
+
+        document.getElementById('heroGradeSet').style.display =
+            value === "hero_reg" ? "block" : "none";
 
         if (value === "video_pve") {
             dom.subCatUI().style.display = "block";
-            dom.subCatIn().innerHTML = '<option value="공성전">공성전</option><option value="강림">강림</option><option value="레이드">레이드</option><option value="돌발레이드">돌발레이드</option><option value="무한의탑">무한의탑</option><option value="시련의탑">시련의탑</option><option value="모험">모험</option>';
-        } else if (value === "video_pvp") {
+            dom.subCatIn().innerHTML = `
+                <option value="공성전">공성전</option>
+                <option value="강림">강림</option>
+                <option value="레이드">레이드</option>
+                <option value="돌발레이드">돌발레이드</option>
+                <option value="무한의탑">무한의탑</option>
+                <option value="시련의탑">시련의탑</option>
+                <option value="모험">모험</option>`;
+        } 
+        else if (value === "video_pvp") {
             dom.subCatUI().style.display = "block";
-            dom.subCatIn().innerHTML = '<option value="결투장">결투장</option><option value="상급 결투장">상급 결투장</option><option value="실시간 결투장">실시간 결투장</option>';
-        } else {
+            dom.subCatIn().innerHTML = `
+                <option value="결투장">결투장</option>
+                <option value="상급 결투장">상급 결투장</option>
+                <option value="실시간 결투장">실시간 결투장</option>`;
+        } 
+        else {
             dom.subCatUI().style.display = "none";
             dom.subCatIn().innerHTML = "";
         }
 
         if (value === "deck_reg") {
             dom.fileArea().style.display = "none";
-        } else if (value.includes("video")) {
+        } 
+        else if (value.includes("video")) {
             dom.fileArea().style.display = "block";
             dom.fileIn().style.display = "none";
             dom.linkIn().style.display = "block";
-        } else {
+        } 
+        else {
             dom.fileArea().style.display = "block";
             dom.fileIn().style.display = "block";
             dom.linkIn().style.display = "none";
