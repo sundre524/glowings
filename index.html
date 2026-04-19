@@ -4,6 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GlowingS ARCHIVE</title>
+
+    <style>
+        :root { --gold: #d4af37; --red: #ff4444; --blue: #44aaff; --purple: #b044ff; --bg: #0a0e14; --card: #1c2b3e; --text: #e0e0e0; }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background: var(--bg);
+            font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* ✅ ✅ ✅ 여기 추가된 부분 (중요) */
+        .hero-unit {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        #gatekeeper { position: fixed; inset: 0; background: var(--bg); display: flex; align-items: center; justify-content: center; z-index: 9999; }
+
+        .gate-box {
+            text-align: center;
+            padding: 30px;
+            border: 1px solid var(--gold);
+            border-radius: 20px;
+            width: 88%;
+            max-width: 350px;
+            background: #161c24;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        #main { display: none; flex-direction: column; height: 100vh; }
+
+        header {
+            background: #161c24;
+            padding: 18px;
+            text-align: center;
+            border-bottom: 2px solid var(--gold);
+            flex-shrink: 0;
+            cursor: pointer;
+        }
+
+        header h1 {
+            color: var(--gold);
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+        }
+
+        .hero-img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid #444;
+            object-fit: cover;
+        }
+
+        .hero-name {
+            font-size: 12px;
+            margin-top: 8px;
+            color: #fff;
+            text-align: center;
+        }
+
+        .border-old { border-color: var(--purple) !important; }
+        .border-leg { border-color: var(--gold) !important; }
+        .border-rare { border-color: var(--blue) !important; }
+
+        /* 🔽 나머지 CSS는 네 기존 코드 그대로 유지하면 됨 */
+    </style>
+</head>
+
+<body>
+
+<!-- 🔽 여기부터는 너가 처음에 보낸 HTML 전체 그대로 붙이면 됨 -->
+<!-- 절대 수정할 필요 없음 -->
+
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GlowingS ARCHIVE</title>
     <style>
         :root { --gold: #d4af37; --red: #ff4444; --blue: #44aaff; --purple: #b044ff; --bg: #0a0e14; --card: #1c2b3e; --text: #e0e0e0; }
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
